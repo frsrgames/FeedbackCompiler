@@ -6,19 +6,547 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+/* =========================================
+   Material-ish Design 3 (inspired) + Custom Palette
+   Palette: #312C51 #48426D #F0C38E #F1AA9B
+   ========================================= */
 
-/* ALL YOUR EXISTING STYLES REMAIN UNCHANGED */
+:root{
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+
+  /* Core palette */
+  --c-primary: #312C51;
+  --c-secondary: #48426D;
+  --c-accent: #F0C38E;
+  --c-accent-soft: #F7D9B6;
+  --c-coral: #F1AA9B;
+
+  /* Light surfaces */
+  --md-surface: #FAF9FC;
+  --md-surface-container: #F1F0F6;
+  --md-surface-container-high: #E7E5EF;
+  --md-surface-container-highest: #DEDBE8;
+
+  /* Text */
+  --md-on-surface: #191824;
+  --md-on-surface-variant: #5B5870;
+
+  /* Borders */
+  --md-outline: #8A86A3;
+  --md-outline-variant: #D6D3E2;
+
+  /* Roles */
+  --md-primary: var(--c-primary);
+  --md-on-primary: #FFFFFF;
+
+  --md-primary-container: #E8E6F4;
+  --md-on-primary-container: #1D1935;
+
+  --md-secondary-container: #E3E1F0;
+  --md-on-secondary-container: #211C3A;
+
+  /* Highlight */
+  --md-highlight: rgba(240,195,142,.55);
+
+  /* Shape */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+
+  /* Elevation */
+  --e1: 0 1px 2px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+  --e2: 0 2px 6px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
+
+  /* State layers */
+  --state-hover: rgba(49,44,81,.07);
+  --state-press: rgba(49,44,81,.12);
+
+  /* Sticky offset (set by JS) */
+  --stickyTop: 110px;
+
+  /* Motion */
+  --anim-fast: 160ms;
+  --anim-med: 220ms;
+  --ease: cubic-bezier(.2,.0,0,1);
+}
+
+body.dark{
+  /* Dark surfaces */
+  --md-surface: #12111A;
+  --md-surface-container: #1B1926;
+  --md-surface-container-high: #232135;
+  --md-surface-container-highest: #2B2942;
+
+  --md-on-surface: #ECEAF6;
+  --md-on-surface-variant: #BDB9D6;
+
+  --md-outline: #9A96B8;
+  --md-outline-variant: #44415B;
+
+  /* Roles */
+  --md-primary: #C7C2FF;
+  --md-on-primary: #27234A;
+
+  --md-primary-container: #2D2A52;
+  --md-on-primary-container: #E9E7FF;
+
+  --md-secondary-container: #34305F;
+  --md-on-secondary-container: #E6E3FF;
+
+  --md-highlight: rgba(240,195,142,.28);
+
+  --e1: 0 1px 2px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.35);
+  --e2: 0 4px 10px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.35);
+
+  --state-hover: rgba(240,195,142,.10);
+  --state-press: rgba(240,195,142,.18);
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  font-family: var(--font);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  margin:0;
+  padding:20px;
+}
+
+/* Topbar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+
+.topbar-left{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:220px;
+}
+
+.brand{ display:flex; flex-direction:column; gap:4px; }
+
+h1{
+  margin:0;
+  font-weight:650;
+  letter-spacing:-.2px;
+  font-size:28px;
+  line-height:32px;
+  color: var(--md-on-surface);
+}
+
+a{
+  color: var(--md-primary);
+  text-decoration:none;
+  font-weight:650;
+  font-size:14px;
+}
+a:hover{ text-decoration:underline; }
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+/* Inputs base */
+input:not([type="checkbox"]), select, textarea{
+  width:100%;
+  border-radius: var(--r-md);
+  border:1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+  color: var(--md-on-surface);
+  padding: 12px 14px;
+  font-size:14px;
+  outline:none;
+  transition: border-color var(--anim-fast) var(--ease),
+              box-shadow var(--anim-fast) var(--ease),
+              background var(--anim-fast) var(--ease);
+}
+
+input:not([type="checkbox"]):focus, select:focus, textarea:focus{
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 3px rgba(49,44,81,.18);
+  background: var(--md-surface-container-high);
+}
+
+body.dark input:not([type="checkbox"]):focus,
+body.dark select:focus,
+body.dark textarea:focus{
+  box-shadow: 0 0 0 3px rgba(240,195,142,.16);
+}
+
+textarea{
+  min-height: 72px;
+  resize: vertical;
+}
+
+/* Header search */
+.header-search{ width: 260px; }
+
+.search-wrapper{ position:relative; }
+.clear-search{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:28px;
+  height:28px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  cursor:pointer;
+  color: var(--md-on-surface-variant);
+  transition: background var(--anim-fast) var(--ease);
+}
+.clear-search:hover{ background: var(--state-hover); }
+.clear-search:active{ background: var(--state-press); }
+
+/* Buttons */
+button{
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 650;
+  font-size: 14px;
+  cursor:pointer;
+  transition: transform 80ms var(--ease),
+              filter var(--anim-fast) var(--ease),
+              background var(--anim-fast) var(--ease),
+              box-shadow var(--anim-fast) var(--ease);
+  user-select:none;
+  white-space:nowrap;
+}
+button:active{ transform: translateY(1px); }
+
+button.filled{
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--e1);
+}
+button.filled:hover{ filter: brightness(0.98); box-shadow: var(--e2); }
+
+button.outlined{
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+}
+button.outlined:hover{ background: var(--state-hover); }
+
+/* Icon button */
+.icon-btn{
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: background var(--anim-fast) var(--ease),
+              border-color var(--anim-fast) var(--ease),
+              box-shadow var(--anim-fast) var(--ease),
+              transform 80ms var(--ease);
+}
+.icon-btn:hover{
+  background: var(--md-surface-container-high);
+  box-shadow: var(--e1);
+}
+.icon-btn:active{ transform: translateY(1px); }
+.icon-btn svg{
+  width:28px;
+  height:28px;
+  fill: var(--md-on-surface-variant);
+}
+
+/* Upload */
+.header-upload{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+#dropzone{
+  border: 1px dashed var(--md-outline);
+  border-radius: 999px;
+  padding: 8px 12px;
+  min-height: 38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--md-on-surface-variant);
+  background: transparent;
+  font-size: 12px;
+  user-select:none;
+  transition: background var(--anim-fast) var(--ease),
+              border-color var(--anim-fast) var(--ease),
+              color var(--anim-fast) var(--ease);
+}
+#dropzone.dragover{
+  background: var(--state-hover);
+  border-color: var(--md-primary);
+  color: var(--md-on-surface);
+}
+
+/* Loaded file pill (chip) */
+.file-pill{
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+  max-width: 280px;
+}
+.file-pill .label{
+  color: var(--md-on-surface-variant);
+  font-size: 12px;
+  white-space:nowrap;
+}
+.file-pill .name{
+  font-size: 12px;
+  font-weight: 650;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* ✅ Sheet switcher chips */
+.sheet-tabs{
+  display:none;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.sheet-chip{
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+  color: var(--md-on-surface);
+  font-size: 12px;
+  font-weight: 700;
+  cursor:pointer;
+  transition: background var(--anim-fast) var(--ease), border-color var(--anim-fast) var(--ease);
+}
+.sheet-chip:hover{ background: var(--md-surface-container-high); }
+.sheet-chip.active{
+  background: var(--md-primary-container);
+  border-color: var(--md-primary);
+  color: var(--md-on-primary-container);
+}
+
+/* Main grid */
+.main-grid{
+  display:grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  align-items:start;
+}
+
+/* Cards / Panels */
+.card{
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--r-lg);
+  box-shadow: var(--e1);
+}
+
+.control-card{
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.control-title{
+  color: var(--md-on-surface-variant);
+  font-size: 12px;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+.helper{
+  margin-top: 8px;
+  color: var(--md-on-surface-variant);
+  font-size: 12px;
+}
+
+.panel{ padding: 16px; }
+
+.sticky{
+  position: sticky;
+  top: var(--stickyTop);
+}
+
+/* Topics */
+.topic{
+  border-radius: var(--r-md);
+  overflow:hidden;
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface);
+  margin-bottom: 12px;
+}
+
+.topic-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding: 12px 14px;
+  cursor:pointer;
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  font-weight: 650;
+  transition: background var(--anim-fast) var(--ease);
+}
+.topic-header:hover{ background: var(--md-surface-container-highest); }
+
+/* Animated collapse container */
+.topic-body{
+  padding: 0 14px;
+  display:block;
+  overflow:hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height var(--anim-med) var(--ease),
+              opacity var(--anim-med) var(--ease);
+  background: var(--md-surface);
+}
+.topic-body-inner{
+  padding: 12px 0 14px 0;
+}
+.topic-body.show{
+  opacity: 1;
+  max-height: 1800px;
+}
+
+/* Comments */
+.comment{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor:pointer;
+  transition: background var(--anim-fast) var(--ease);
+}
+.comment:hover{ background: var(--state-hover); }
+.comment:active{ background: var(--state-press); }
+
+.comment input[type="checkbox"]{
+  width:auto;
+  margin-top: 3px;
+  accent-color: var(--md-primary);
+}
+
+/* Highlight */
+.mark{
+  background: var(--md-highlight);
+  border-radius: 6px;
+  padding: 0 2px;
+}
+
+/* Output */
+h3{
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: .1px;
+  color: var(--md-on-surface);
+}
+
+#output{
+  background: var(--md-surface);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  min-height: 220px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1100px){
+  .header-search{ width: 210px; }
+  .file-pill{ max-width: 220px; }
+}
+
+@media (max-width: 900px){
+  .main-grid{ grid-template-columns: 1fr; }
+  .sticky{ position: static; }
+  .topbar{ align-items:flex-start; }
+  .topbar-right{ justify-content:flex-start; }
+  .header-search{ width: 100%; }
+  .file-pill{ max-width: 100%; }
+}
+
+/* ---------- Confirm dialog (Start new student) ---------- */
+#confirmOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#confirmDialog{
+  background: var(--md-surface-container);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  width: min(420px, calc(100vw - 40px));
+  box-shadow: var(--e2);
+  animation: dialogIn var(--anim-med) var(--ease);
+}
+
+#confirmDialog h3{
+  margin: 0 0 10px 0;
+}
+
+#confirmDialog p{
+  margin: 0 0 18px 0;
+  color: var(--md-on-surface-variant);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dialog-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@keyframes dialogIn{
+  from { transform: translateY(6px) scale(.98); opacity: 0; }
+  to   { transform: translateY(0)  scale(1);   opacity: 1; }
+}
 
 /* Footer copyright */
 .footer{
-  margin-top: 30px;
+  margin-top: 22px;
   text-align: center;
   font-size: 11px;
   color: var(--md-on-surface-variant);
-  opacity: .7;
+  opacity: .75;
   user-select: none;
 }
 
+/* Make editable output feel intentional */
+#output[contenteditable="true"]:focus{
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
 </style>
 </head>
 
@@ -32,14 +560,41 @@
     </div>
   </div>
 
-  <!-- UNCHANGED TOPBAR CONTENT -->
+  <div class="topbar-right">
+    <!-- Search -->
+    <div class="search-wrapper header-search">
+      <input type="text" id="searchBox" placeholder="Search…" oninput="handleSearchInput()">
+      <span class="clear-search" id="clearSearch" onclick="clearSearch()" aria-label="Clear search" title="Clear">✕</span>
+    </div>
+
+    <!-- Upload -->
+    <div class="header-upload">
+      <button class="filled" onclick="fileInput.click()">Load</button>
+      <div id="dropzone" title="Drag & drop .xlsx here">Drop .xlsx</div>
+      <input type="file" id="fileInput" accept=".xlsx" hidden>
+    </div>
+
+    <!-- Loaded filename -->
+    <div class="file-pill" id="filePill" title="Currently loaded spreadsheet">
+      <span class="label">Loaded:</span>
+      <span class="name" id="fileName">—</span>
+    </div>
+
+    <!-- ✅ Sheet selector (appears when workbook has >1 sheet) -->
+    <div class="sheet-tabs" id="sheetTabs" title="Select assessment sheet"></div>
+
+    <!-- Dark mode icon button -->
+    <button class="icon-btn" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg id="darkIcon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"></path>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <div class="main-grid">
-
   <!-- LEFT COLUMN -->
   <div>
-
     <div class="card control-card">
       <div class="control-title">Student name</div>
       <input type="text" id="studentName" placeholder="Student name…" oninput="updateOutput()">
@@ -47,73 +602,467 @@
     </div>
 
     <div class="card panel" id="builder"></div>
-
   </div>
 
-  <!-- RIGHT COLUMN -->
+  <!-- RIGHT COLUMN (sticky) -->
   <div class="card panel sticky">
-
     <h3>Compiled feedback</h3>
-
-    <!-- NOW EDITABLE -->
-    <div id="output" contenteditable="true"></div>
-
+    <div id="output" contenteditable="true" spellcheck="false" aria-label="Compiled feedback (editable)"></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
       <button class="filled" onclick="copyFeedback()">Copy</button>
       <button class="outlined" onclick="clearAll()">Start new student</button>
     </div>
-
   </div>
-
 </div>
 
-<!-- EXISTING CONFIRM DIALOG UNCHANGED -->
-
-<div id="confirmOverlay">
+<!-- Confirm dialog: Start new student -->
+<div id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div id="confirmDialog">
-    <h3>Start new student?</h3>
+    <h3 id="confirmTitle">Start new student?</h3>
     <p>This will clear all selected feedback across all assessment tabs.</p>
-
     <div class="dialog-actions">
-      <button id="confirmContinue" class="filled">Continue</button>
-      <button id="confirmCancel" class="outlined">Cancel</button>
+      <button id="confirmContinue" class="filled" type="button">Continue</button>
+      <button id="confirmCancel" class="outlined" type="button">Cancel</button>
     </div>
   </div>
 </div>
 
-
-<!-- COPYRIGHT FOOTER -->
-<div class="footer">
-  © Fraser Simpson 2026
-</div>
-
+<!-- Copyright -->
+<div class="footer">© Fraser Simpson 2026</div>
 
 <script>
+/* ======================
+   Data model for sheets
+   ====================== */
 
-/* ALL YOUR EXISTING JAVASCRIPT REMAINS IDENTICAL */
+let dataBySheet = {};   // { sheetName: { Topic: { Subcategory: [Comment] } } }
+let stateBySheet = {};  // { sheetName: { Topic: {selected:Set, freeText, expanded, filter} } }
+let sheetNames = [];
+let currentSheet = "";  // active sheet name
 
-/* ONLY CHANGE: help window title */
+function getCurrentData() {
+  return dataBySheet[currentSheet] || {};
+}
+function getCurrentState() {
+  stateBySheet[currentSheet] ||= {};
+  return stateBySheet[currentSheet];
+}
 
+/* Sticky offset */
+function setStickyTop() {
+  const topbar = document.getElementById("topbar");
+  const h = topbar ? topbar.offsetHeight : 0;
+  document.documentElement.style.setProperty("--stickyTop", (h + 14) + "px");
+}
+window.addEventListener("load", setStickyTop);
+window.addEventListener("resize", setStickyTop);
+
+/* Dark icon */
+function setDarkIcon() {
+  const icon = document.getElementById("darkIcon");
+  const isDark = document.body.classList.contains("dark");
+  if (isDark) {
+    icon.innerHTML = `
+      <path d="M12 18a6 6 0 1 1 0-12a6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM4.22 5.64a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41ZM17.66 19.07a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41ZM2 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm18 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1ZM5.64 19.78a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0ZM19.07 6.34a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0Z"></path>
+    `;
+  } else {
+    icon.innerHTML = `
+      <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"></path>
+    `;
+  }
+}
+
+/* Search clear */
+function handleSearchInput(){
+  const box = document.getElementById("searchBox");
+  const clear = document.getElementById("clearSearch");
+  clear.style.display = box.value ? "inline-flex" : "none";
+  render();
+}
+function clearSearch(){
+  document.getElementById("searchBox").value = "";
+  document.getElementById("clearSearch").style.display = "none";
+  render();
+}
+
+/* File loading + dropzone */
+fileInput.addEventListener("change", e => loadWorkbook(e.target.files[0]));
+
+dropzone.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropzone.classList.add("dragover");
+});
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("dragover");
+  loadWorkbook(e.dataTransfer.files[0]);
+});
+
+function showLoadedFileName(name){
+  const pill = document.getElementById("filePill");
+  const label = document.getElementById("fileName");
+  if (name) {
+    label.textContent = name;
+    pill.style.display = "inline-flex";
+  } else {
+    label.textContent = "—";
+    pill.style.display = "none";
+  }
+}
+
+/* ✅ Build sheet buttons */
+function renderSheetTabs() {
+  const tabs = document.getElementById("sheetTabs");
+  tabs.innerHTML = "";
+
+  if (!sheetNames || sheetNames.length <= 1) {
+    tabs.style.display = "none";
+    setStickyTop();
+    return;
+  }
+
+  sheetNames.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "sheet-chip" + (name === currentSheet ? " active" : "");
+    btn.type = "button";
+    btn.textContent = name;
+    btn.onclick = () => switchSheet(name);
+    tabs.appendChild(btn);
+  });
+
+  tabs.style.display = "flex";
+  setStickyTop();
+}
+
+function switchSheet(name) {
+  if (!dataBySheet[name]) return;
+  currentSheet = name;
+  renderSheetTabs();
+  render();
+}
+
+/* ✅ Load workbook with multiple sheets */
+function loadWorkbook(file) {
+  if (!file) return;
+
+  showLoadedFileName(file.name);
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, { type: "binary" });
+    sheetNames = wb.SheetNames.slice();
+
+    dataBySheet = {};
+    stateBySheet = {}; // reset state when a new workbook is loaded
+
+    sheetNames.forEach(sheetName => {
+      const sheet = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+
+      const sheetData = {};
+      rows.forEach(r => {
+        if (!r.Topic || !r.Subcategory || !r.Comment) return;
+        sheetData[r.Topic] ??= {};
+        sheetData[r.Topic][r.Subcategory] ??= [];
+        sheetData[r.Topic][r.Subcategory].push(r.Comment);
+      });
+
+      dataBySheet[sheetName] = sheetData;
+
+      // init state for topics (collapsed by default)
+      const s = {};
+      Object.keys(sheetData).forEach(topic => {
+        s[topic] = { selected:new Set(), freeText:"", expanded:false, filter:"All" };
+      });
+      stateBySheet[sheetName] = s;
+    });
+
+    currentSheet = sheetNames[0] || "";
+    renderSheetTabs();
+    render();
+  };
+  reader.readAsBinaryString(file);
+}
+
+/* Highlight */
+function highlight(text, query){
+  if(!query) return document.createTextNode(text);
+
+  const span = document.createElement("span");
+  const lower = text.toLowerCase();
+  const q = query.toLowerCase();
+
+  let i=0;
+  while(true){
+    const idx = lower.indexOf(q, i);
+    if(idx === -1) break;
+
+    span.appendChild(document.createTextNode(text.slice(i, idx)));
+
+    const mark = document.createElement("span");
+    mark.className="mark";
+    mark.textContent = text.slice(idx, idx+q.length);
+    span.appendChild(mark);
+
+    i = idx + q.length;
+  }
+  span.appendChild(document.createTextNode(text.slice(i)));
+  return span;
+}
+
+/* Render current sheet */
+function render(){
+  builder.innerHTML="";
+  const q = (document.getElementById("searchBox").value || "").toLowerCase();
+
+  const data = getCurrentData();
+  const state = getCurrentState();
+
+  Object.entries(data).forEach(([topic, subs])=>{
+    state[topic] ??= {selected:new Set(), freeText:"", expanded:false, filter:"All"};
+
+    const wrap=document.createElement("div");
+    wrap.className="topic";
+
+    const header=document.createElement("div");
+    header.className="topic-header";
+    header.innerHTML=`${topic} <span style="color:var(--md-on-surface-variant); font-weight:650;">(${state[topic].selected.size})</span>`;
+    header.onclick=()=>{
+      state[topic].expanded=!state[topic].expanded;
+      render();
+    };
+
+    const body=document.createElement("div");
+    body.className="topic-body"+(state[topic].expanded?" show":"");
+
+    const inner=document.createElement("div");
+    inner.className="topic-body-inner";
+
+    const select=document.createElement("select");
+    ["All",...Object.keys(subs)].forEach(s=>{
+      const o=document.createElement("option");
+      o.textContent=s;
+      select.appendChild(o);
+    });
+    select.value=state[topic].filter;
+    select.onchange=()=>{
+      state[topic].filter=select.value;
+      render();
+    };
+    inner.appendChild(select);
+
+    Object.entries(subs).forEach(([sub,comments])=>{
+      if(state[topic].filter!=="All" && sub!==state[topic].filter) return;
+
+      comments
+        .filter(c=>c.toLowerCase().includes(q))
+        .forEach(text=>{
+          const label=document.createElement("label");
+          label.className="comment";
+
+          const cb=document.createElement("input");
+          cb.type="checkbox";
+          cb.checked=state[topic].selected.has(text);
+
+          cb.onchange=()=>{
+            cb.checked ? state[topic].selected.add(text) : state[topic].selected.delete(text);
+            updateOutput();
+            render(); // refresh counts
+          };
+
+          label.appendChild(cb);
+          label.appendChild(highlight(text,q));
+          inner.appendChild(label);
+        });
+    });
+
+    const ta=document.createElement("textarea");
+    ta.placeholder="Optional personalised addition…";
+    ta.value=state[topic].freeText;
+    ta.oninput=()=>{
+      state[topic].freeText=ta.value;
+      updateOutput();
+    };
+    inner.appendChild(ta);
+
+    body.appendChild(inner);
+    wrap.append(header,body);
+    builder.appendChild(wrap);
+  });
+
+  updateOutput();
+}
+
+/* ✅ Output: ONE paragraph per topic (within the current sheet only) */
+function updateOutput(){
+  const name = document.getElementById("studentName").value.trim();
+  const data = getCurrentData();
+  const state = getCurrentState();
+
+  const paragraphs = [];
+
+  Object.keys(data).forEach(topic => {
+    const s = state[topic];
+    if (!s) return;
+
+    const selected = Array.from(s.selected).map(t => t.trim()).filter(Boolean);
+    if (selected.length === 0) return;
+
+    let p = selected.join(" ");
+    if (s.freeText.trim()) p += " " + s.freeText.trim();
+
+    paragraphs.push(p);
+  });
+
+  let result = paragraphs.join("\n\n");
+  if (name) result = name + ",\n\n" + result;
+
+  output.textContent = result.trim();
+}
+
+/* Confirm dialog for Start new student */
+function showConfirmDialog(onConfirm){
+  const overlay = document.getElementById("confirmOverlay");
+  const btnContinue = document.getElementById("confirmContinue");
+  const btnCancel = document.getElementById("confirmCancel");
+
+  overlay.style.display = "flex";
+  setTimeout(() => btnContinue.focus(), 0);
+
+  function close(){
+    overlay.style.display = "none";
+    btnContinue.removeEventListener("click", confirm);
+    btnCancel.removeEventListener("click", close);
+    document.removeEventListener("keydown", onKey);
+  }
+
+  function confirm(){
+    close();
+    onConfirm();
+  }
+
+  function onKey(e){
+    if(e.key === "Escape"){
+      close();
+    } else if(e.key === "Enter"){
+      e.preventDefault();
+      confirm();
+    }
+  }
+
+  btnContinue.addEventListener("click", confirm);
+  btnCancel.addEventListener("click", close);
+  document.addEventListener("keydown", onKey);
+}
+
+/* Clear across ALL sheets (for next student) */
+function clearAll(){
+  showConfirmDialog(()=>{
+    Object.values(stateBySheet).forEach(sheetState => {
+      Object.values(sheetState).forEach(s=>{
+        s.selected.clear();
+        s.freeText="";
+        s.expanded=false;
+        s.filter="All";
+      });
+    });
+
+    studentName.value="";
+    searchBox.value="";
+    document.getElementById("clearSearch").style.display="none";
+    render();
+  });
+}
+
+function copyFeedback(){
+  navigator.clipboard.writeText(output.textContent);
+}
+
+function toggleDark(){
+  document.body.classList.toggle("dark");
+  setDarkIcon();
+}
+
+/* Help window */
 function openHelp(){
-
   const w = window.open("", "_blank");
-
   w.document.write(`
     <html>
       <head>
         <title>How to use FeedbackCompilerHE</title>
         <meta charset="UTF-8">
+        <style>
+          body{
+            font-family: ${getComputedStyle(document.body).fontFamily};
+            background:#FAF9FC;
+            margin:0;
+            padding:40px;
+            color:#191824;
+            line-height:1.65;
+          }
+          .card{
+            max-width:900px;
+            margin:auto;
+            background:#ffffff;
+            border-radius:20px;
+            padding:32px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.08);
+            border:1px solid #D6D3E2;
+          }
+          h1{
+            margin-top:0;
+            font-size:24px;
+            color:#312C51;
+            letter-spacing:-.2px;
+          }
+          .important{
+            margin-top:24px;
+            padding:16px;
+            border-radius:16px;
+            background:#E8E6F4;
+            border:1px solid #D6D3E2;
+          }
+          .note{ margin-top:10px; }
+          code{
+            background:#F1F0F6;
+            padding:2px 6px;
+            border-radius:8px;
+            border:1px solid #DEDBE8;
+          }
+        </style>
       </head>
       <body>
-      <!-- unchanged help content -->
+        <div class="card">
+          <h1>How to use FeedbackCompilerHE</h1>
+
+          <ol>
+            <li>Create an excel spreadsheet using the <strong>'feedback_example'</strong> spreadsheet in the folder with this document. don't change the table headings, but you can change anything else in the spreadsheet to suit your module. using your own feedback ensures that using this tool is just a quick way of searching and reusing your own writing.</li>
+            <li>Load the spreadsheet using the 'Load Spreadsheet' button or by dragging and dropping into the upload field.</li>
+            <li>Enter the student's name at the top</li>
+            <li>Expand each drop-down to provide a comment on that Topic (you don't need to use every Topic).</li>
+            <li>You can filter for Subcategories, or you can select all.</li>
+            <li>Select one or more comment in each to copy it into the 'compiled feedback' field</li>
+            <li>Press the 'copy' button, and paste the feedback outside of the tool (in MLS, Word etc)</li>
+            <li>Press 'Start New Student' to clear all entries and start again.</li>
+          </ol>
+
+          <div class="important">
+            <strong>Important points:</strong>
+            <div class="note">• your spreadsheet must be formatted by <code>Topic</code> &gt; <code>Subcategory</code> &gt; <code>Comment</code></div>
+            <div class="note">• when using this tool, nothing is saved or stored anywhere, it's browser only. If you want a backup of the feedback, you'll need to save it somewhere.</div>
+          </div>
+        </div>
       </body>
     </html>
   `);
-
 }
 
-/* Everything else unchanged */
-
+/* init */
+window.addEventListener("load", () => {
+  setStickyTop();
+  setDarkIcon();
+});
 </script>
 
 </body>
