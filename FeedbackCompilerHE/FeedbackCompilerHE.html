@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FeedbackCompilerHE</title>
+<title>FeedbackCompilerHE v0.1</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
@@ -321,7 +321,7 @@ button.outlined:hover{ background: var(--state-hover); }
   white-space:nowrap;
 }
 
-/* Sheet switcher chips */
+/* ✅ Sheet switcher chips */
 .sheet-tabs{
   display:none;
   align-items:center;
@@ -488,7 +488,7 @@ h3{
   .file-pill{ max-width: 100%; }
 }
 
-/* Confirm dialog (Start new student) */
+/* ---------- Confirm dialog (Start new student) ---------- */
 #confirmOverlay{
   position: fixed;
   inset: 0;
@@ -531,22 +531,6 @@ h3{
   from { transform: translateY(6px) scale(.98); opacity: 0; }
   to   { transform: translateY(0)  scale(1);   opacity: 1; }
 }
-
-/* Footer copyright */
-.footer{
-  margin-top: 22px;
-  text-align: center;
-  font-size: 11px;
-  color: var(--md-on-surface-variant);
-  opacity: .75;
-  user-select: none;
-}
-
-/* Make editable output feel intentional */
-#output[contenteditable="true"]:focus{
-  outline: 2px solid var(--md-primary);
-  outline-offset: 2px;
-}
 </style>
 </head>
 
@@ -555,7 +539,7 @@ h3{
 <div class="topbar" id="topbar">
   <div class="topbar-left">
     <div class="brand">
-      <h1>FeedbackCompilerHE</h1>
+      <h1>FeedbackCompilerHE v0.1</h1>
       <a href="#" onclick="openHelp(); return false;">How to use</a>
     </div>
   </div>
@@ -580,7 +564,7 @@ h3{
       <span class="name" id="fileName">—</span>
     </div>
 
-    <!-- Sheet selector (appears when workbook has >1 sheet) -->
+    <!-- ✅ Sheet selector (appears when workbook has >1 sheet) -->
     <div class="sheet-tabs" id="sheetTabs" title="Select assessment sheet"></div>
 
     <!-- Dark mode icon button -->
@@ -607,7 +591,7 @@ h3{
   <!-- RIGHT COLUMN (sticky) -->
   <div class="card panel sticky">
     <h3>Compiled feedback</h3>
-    <div id="output" contenteditable="true" spellcheck="false" aria-label="Compiled feedback (editable)"></div>
+    <div id="output"></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
       <button class="filled" onclick="copyFeedback()">Copy</button>
       <button class="outlined" onclick="clearAll()">Start new student</button>
@@ -627,9 +611,6 @@ h3{
   </div>
 </div>
 
-<!-- Copyright -->
-<div class="footer">© Fraser Simpson 2026</div>
-
 <script>
 /* ======================
    Data model for sheets
@@ -647,12 +628,6 @@ function getCurrentState() {
   stateBySheet[currentSheet] ||= {};
   return stateBySheet[currentSheet];
 }
-
-/* ======================
-   Persist user-added text in output
-   ====================== */
-let lastGeneratedOutput = "";  // last auto-generated full output (including student name)
-let customOutputSuffix = "";   // anything the user types beyond lastGeneratedOutput
 
 /* Sticky offset */
 function setStickyTop() {
@@ -717,7 +692,7 @@ function showLoadedFileName(name){
   }
 }
 
-/* Build sheet buttons */
+/* ✅ Build sheet buttons */
 function renderSheetTabs() {
   const tabs = document.getElementById("sheetTabs");
   tabs.innerHTML = "";
@@ -748,15 +723,11 @@ function switchSheet(name) {
   render();
 }
 
-/* Load workbook with multiple sheets */
+/* ✅ Load workbook with multiple sheets */
 function loadWorkbook(file) {
   if (!file) return;
 
   showLoadedFileName(file.name);
-
-  // Reset persistent output text when a new workbook is loaded
-  customOutputSuffix = "";
-  lastGeneratedOutput = "";
 
   const reader = new FileReader();
   reader.onload = e => {
@@ -904,8 +875,7 @@ function render(){
   updateOutput();
 }
 
-/* Output: ONE paragraph per topic (within the current sheet only)
-   + preserves user-added edits in output panel */
+/* ✅ Output: ONE paragraph per topic (within the current sheet only) */
 function updateOutput(){
   const name = document.getElementById("studentName").value.trim();
   const data = getCurrentData();
@@ -926,43 +896,11 @@ function updateOutput(){
     paragraphs.push(p);
   });
 
-  let generated = paragraphs.join("\n\n");
-  if (name) generated = name + ",\n\n" + generated;
-  generated = generated.trim();
+  let result = paragraphs.join("\n\n");
+  if (name) result = name + ",\n\n" + result;
 
-  // Update the baseline generated output used for persistence tracking
-  lastGeneratedOutput = generated;
-
-  // Append any user-added text that has been typed into the editable output panel
-  let finalText = generated;
-
-  const suffix = customOutputSuffix || "";
-  if (suffix.trim()) {
-    if (/^\s/.test(suffix)) finalText += suffix;
-    else finalText += "\n\n" + suffix;
-  }
-
-  output.textContent = finalText.trim();
+  output.textContent = result.trim();
 }
-
-/* Capture manual edits in the output box so they persist across regenerate */
-output.addEventListener("input", () => {
-  const current = output.textContent || "";
-  const base = lastGeneratedOutput || "";
-
-  if (!base) {
-    customOutputSuffix = current;
-    return;
-  }
-
-  // Common prefix length between current and base
-  let i = 0;
-  const max = Math.min(current.length, base.length);
-  while (i < max && current[i] === base[i]) i++;
-
-  // Everything after common prefix is treated as custom suffix
-  customOutputSuffix = current.slice(i);
-});
 
 /* Confirm dialog for Start new student */
 function showConfirmDialog(onConfirm){
@@ -1002,9 +940,6 @@ function showConfirmDialog(onConfirm){
 /* Clear across ALL sheets (for next student) */
 function clearAll(){
   showConfirmDialog(()=>{
-    customOutputSuffix = "";
-    lastGeneratedOutput = "";
-
     Object.values(stateBySheet).forEach(sheetState => {
       Object.values(sheetState).forEach(s=>{
         s.selected.clear();
@@ -1030,13 +965,13 @@ function toggleDark(){
   setDarkIcon();
 }
 
-/* Help window */
+/* Help window (unchanged content) */
 function openHelp(){
   const w = window.open("", "_blank");
   w.document.write(`
     <html>
       <head>
-        <title>How to use FeedbackCompilerHE</title>
+        <title>How to use FeedbackCompilerHE v0.1</title>
         <meta charset="UTF-8">
         <style>
           body{
@@ -1080,7 +1015,7 @@ function openHelp(){
       </head>
       <body>
         <div class="card">
-          <h1>How to use FeedbackCompilerHE</h1>
+          <h1>How to use FeedbackCompilerHE v0.1</h1>
 
           <ol>
             <li>Create an excel spreadsheet using the <strong>'feedback_example'</strong> spreadsheet in the folder with this document. don't change the table headings, but you can change anything else in the spreadsheet to suit your module. using your own feedback ensures that using this tool is just a quick way of searching and reusing your own writing.</li>
@@ -1099,7 +1034,12 @@ function openHelp(){
             <div class="note">• when using this tool, nothing is saved or stored anywhere, it's browser only. If you want a backup of the feedback, you'll need to save it somewhere.</div>
           </div>
         </div>
-      </body>
+      
+<footer style="text-align:center; margin-top:40px; font-size:12px; color:var(--md-on-surface-variant);">
+  © Fraser Simpson 2026
+</footer>
+
+</body>
     </html>
   `);
 }
@@ -1110,6 +1050,11 @@ window.addEventListener("load", () => {
   setDarkIcon();
 });
 </script>
+
+
+<footer style="text-align:center; margin-top:40px; font-size:12px; color:var(--md-on-surface-variant);">
+  © Fraser Simpson 2026
+</footer>
 
 </body>
 </html>
