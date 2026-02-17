@@ -321,7 +321,7 @@ button.outlined:hover{ background: var(--state-hover); }
   white-space:nowrap;
 }
 
-/* ✅ Sheet switcher chips */
+/* Sheet switcher chips */
 .sheet-tabs{
   display:none;
   align-items:center;
@@ -488,7 +488,7 @@ h3{
   .file-pill{ max-width: 100%; }
 }
 
-/* ---------- Confirm dialog (Start new student) ---------- */
+/* Confirm dialog (Start new student) */
 #confirmOverlay{
   position: fixed;
   inset: 0;
@@ -580,7 +580,7 @@ h3{
       <span class="name" id="fileName">—</span>
     </div>
 
-    <!-- ✅ Sheet selector (appears when workbook has >1 sheet) -->
+    <!-- Sheet selector (appears when workbook has >1 sheet) -->
     <div class="sheet-tabs" id="sheetTabs" title="Select assessment sheet"></div>
 
     <!-- Dark mode icon button -->
@@ -648,6 +648,12 @@ function getCurrentState() {
   return stateBySheet[currentSheet];
 }
 
+/* ======================
+   Persist user-added text in output
+   ====================== */
+let lastGeneratedOutput = "";  // last auto-generated full output (including student name)
+let customOutputSuffix = "";   // anything the user types beyond lastGeneratedOutput
+
 /* Sticky offset */
 function setStickyTop() {
   const topbar = document.getElementById("topbar");
@@ -711,7 +717,7 @@ function showLoadedFileName(name){
   }
 }
 
-/* ✅ Build sheet buttons */
+/* Build sheet buttons */
 function renderSheetTabs() {
   const tabs = document.getElementById("sheetTabs");
   tabs.innerHTML = "";
@@ -742,11 +748,15 @@ function switchSheet(name) {
   render();
 }
 
-/* ✅ Load workbook with multiple sheets */
+/* Load workbook with multiple sheets */
 function loadWorkbook(file) {
   if (!file) return;
 
   showLoadedFileName(file.name);
+
+  // Reset persistent output text when a new workbook is loaded
+  customOutputSuffix = "";
+  lastGeneratedOutput = "";
 
   const reader = new FileReader();
   reader.onload = e => {
@@ -894,7 +904,8 @@ function render(){
   updateOutput();
 }
 
-/* ✅ Output: ONE paragraph per topic (within the current sheet only) */
+/* Output: ONE paragraph per topic (within the current sheet only)
+   + preserves user-added edits in output panel */
 function updateOutput(){
   const name = document.getElementById("studentName").value.trim();
   const data = getCurrentData();
@@ -915,11 +926,43 @@ function updateOutput(){
     paragraphs.push(p);
   });
 
-  let result = paragraphs.join("\n\n");
-  if (name) result = name + ",\n\n" + result;
+  let generated = paragraphs.join("\n\n");
+  if (name) generated = name + ",\n\n" + generated;
+  generated = generated.trim();
 
-  output.textContent = result.trim();
+  // Update the baseline generated output used for persistence tracking
+  lastGeneratedOutput = generated;
+
+  // Append any user-added text that has been typed into the editable output panel
+  let finalText = generated;
+
+  const suffix = customOutputSuffix || "";
+  if (suffix.trim()) {
+    if (/^\s/.test(suffix)) finalText += suffix;
+    else finalText += "\n\n" + suffix;
+  }
+
+  output.textContent = finalText.trim();
 }
+
+/* Capture manual edits in the output box so they persist across regenerate */
+output.addEventListener("input", () => {
+  const current = output.textContent || "";
+  const base = lastGeneratedOutput || "";
+
+  if (!base) {
+    customOutputSuffix = current;
+    return;
+  }
+
+  // Common prefix length between current and base
+  let i = 0;
+  const max = Math.min(current.length, base.length);
+  while (i < max && current[i] === base[i]) i++;
+
+  // Everything after common prefix is treated as custom suffix
+  customOutputSuffix = current.slice(i);
+});
 
 /* Confirm dialog for Start new student */
 function showConfirmDialog(onConfirm){
@@ -959,6 +1002,9 @@ function showConfirmDialog(onConfirm){
 /* Clear across ALL sheets (for next student) */
 function clearAll(){
   showConfirmDialog(()=>{
+    customOutputSuffix = "";
+    lastGeneratedOutput = "";
+
     Object.values(stateBySheet).forEach(sheetState => {
       Object.values(sheetState).forEach(s=>{
         s.selected.clear();
