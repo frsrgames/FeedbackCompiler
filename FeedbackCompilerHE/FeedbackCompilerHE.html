@@ -447,6 +447,40 @@ button.outlined:hover{ background: var(--state-hover); }
   accent-color: var(--md-primary);
 }
 
+
+/* Per-comment note toggle */
+.comment-block{
+  display:block;
+}
+
+.note-toggle{
+  margin-left:auto;
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  border:1px solid var(--md-outline-variant);
+  background: var(--md-surface-container);
+  color: var(--md-on-surface-variant);
+  font-weight: 850;
+  font-size: 16px;
+  line-height: 1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: background var(--anim-fast) var(--ease),
+              transform 80ms var(--ease);
+}
+.note-toggle:hover{ background: var(--md-surface-container-high); }
+.note-toggle:active{ transform: translateY(1px); }
+
+.comment-note{
+  margin: 6px 0 8px 34px; /* indent under comment text (after checkbox) */
+  width: calc(100% - 34px);
+  min-height: 60px;
+}
+
+
 /* Highlight */
 .mark{
   background: var(--md-highlight);
@@ -754,7 +788,7 @@ function loadWorkbook(file) {
       // init state for topics (collapsed by default)
       const s = {};
       Object.keys(sheetData).forEach(topic => {
-        s[topic] = { selected:new Set(), freeText:"", expanded:false, filter:"All" };
+        s[topic] = { selected:new Set(), expanded:false, filter:"All", commentNotes:{} };
       });
       stateBySheet[sheetName] = s;
     });
@@ -801,7 +835,7 @@ function render(){
   const state = getCurrentState();
 
   Object.entries(data).forEach(([topic, subs])=>{
-    state[topic] ??= {selected:new Set(), freeText:"", expanded:false, filter:"All"};
+    state[topic] ??= {selected:new Set(), expanded:false, filter:"All", commentNotes:{}};
 
     const wrap=document.createElement("div");
     wrap.className="topic";
@@ -839,6 +873,12 @@ function render(){
       comments
         .filter(c=>c.toLowerCase().includes(q))
         .forEach(text=>{
+          state[topic].commentNotes ||= {};
+          state[topic].commentNotes[text] ||= { open:false, text:"" };
+
+          const block = document.createElement("div");
+          block.className = "comment-block";
+
           const label=document.createElement("label");
           label.className="comment";
 
@@ -852,20 +892,40 @@ function render(){
             render(); // refresh counts
           };
 
+          const toggle=document.createElement("button");
+          toggle.type="button";
+          toggle.className="note-toggle";
+          toggle.textContent = state[topic].commentNotes[text].open ? "–" : "+";
+          toggle.title = state[topic].commentNotes[text].open ? "Hide note" : "Add note";
+          toggle.onclick=(e)=>{
+            e.preventDefault();
+            e.stopPropagation();
+            state[topic].commentNotes[text].open = !state[topic].commentNotes[text].open;
+            render();
+          };
+
           label.appendChild(cb);
           label.appendChild(highlight(text,q));
-          inner.appendChild(label);
+          label.appendChild(toggle);
+
+          block.appendChild(label);
+
+          if (state[topic].commentNotes[text].open){
+            const noteTa=document.createElement("textarea");
+            noteTa.className="comment-note";
+            noteTa.placeholder="Optional note for this comment…";
+            noteTa.value=state[topic].commentNotes[text].text || "";
+            noteTa.oninput=()=>{
+              state[topic].commentNotes[text].text = noteTa.value;
+              updateOutput();
+            };
+            block.appendChild(noteTa);
+          }
+
+          inner.appendChild(block);
         });
     });
 
-    const ta=document.createElement("textarea");
-    ta.placeholder="Optional personalised addition…";
-    ta.value=state[topic].freeText;
-    ta.oninput=()=>{
-      state[topic].freeText=ta.value;
-      updateOutput();
-    };
-    inner.appendChild(ta);
 
     body.appendChild(inner);
     wrap.append(header,body);
@@ -890,10 +950,15 @@ function updateOutput(){
     const selected = Array.from(s.selected).map(t => t.trim()).filter(Boolean);
     if (selected.length === 0) return;
 
-    let p = selected.join(" ");
-    if (s.freeText.trim()) p += " " + s.freeText.trim();
+    const pieces = selected.map(t => {
+      const base = t.trim();
+      const note = (s.commentNotes && s.commentNotes[t] && s.commentNotes[t].text) ? s.commentNotes[t].text.trim() : "";
+      return note ? (base + " " + note) : base;
+    }).filter(Boolean);
 
-    paragraphs.push(p);
+    if (pieces.length === 0) return;
+
+    paragraphs.push(pieces.join(" "));
   });
 
   let result = paragraphs.join("\n\n");
@@ -943,7 +1008,7 @@ function clearAll(){
     Object.values(stateBySheet).forEach(sheetState => {
       Object.values(sheetState).forEach(s=>{
         s.selected.clear();
-        s.freeText="";
+        s.commentNotes = {};
         s.expanded=false;
         s.filter="All";
       });
