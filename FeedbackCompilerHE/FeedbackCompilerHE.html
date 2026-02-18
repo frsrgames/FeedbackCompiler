@@ -2,658 +2,1198 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>FeedbackCompilerHE v0.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeedbackCompilerHE</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 
 <style>
-/* =========================================
-   Material-ish Design 3 (inspired) + Custom Palette
-   Palette: #312C51 #48426D #F0C38E #F1AA9B
-   ========================================= */
+/* =============================================
+   FeedbackCompilerHE — Material Design 3
+   Bold editorial aesthetic with MD3 foundations
+   ============================================= */
 
-:root{
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+:root {
+  /* MD3 Tonal Palette — Deep Indigo + Amber Gold */
+  --md-primary:            #4A3F8C;
+  --md-on-primary:         #FFFFFF;
+  --md-primary-container:  #E8E4FF;
+  --md-on-primary-container: #150D3E;
 
-  /* Core palette */
-  --c-primary: #312C51;
-  --c-secondary: #48426D;
-  --c-accent: #F0C38E;
-  --c-accent-soft: #F7D9B6;
-  --c-coral: #F1AA9B;
+  --md-secondary:          #5E5A72;
+  --md-on-secondary:       #FFFFFF;
+  --md-secondary-container: #E4DFFA;
+  --md-on-secondary-container: #1A162B;
 
-  /* Light surfaces */
-  --md-surface: #FAF9FC;
-  --md-surface-container: #F1F0F6;
-  --md-surface-container-high: #E7E5EF;
-  --md-surface-container-highest: #DEDBE8;
+  --md-tertiary:           #C27B00;
+  --md-on-tertiary:        #FFFFFF;
+  --md-tertiary-container: #FFDEA0;
+  --md-on-tertiary-container: #3E2400;
 
-  /* Text */
-  --md-on-surface: #191824;
-  --md-on-surface-variant: #5B5870;
+  --md-error:              #B3261E;
+  --md-error-container:    #F9DEDC;
 
-  /* Borders */
-  --md-outline: #8A86A3;
-  --md-outline-variant: #D6D3E2;
+  --md-surface:            #FDFBFF;
+  --md-surface-dim:        #DDD8E8;
+  --md-surface-bright:     #FDFBFF;
+  --md-surface-container-lowest:  #FFFFFF;
+  --md-surface-container-low:     #F7F2FF;
+  --md-surface-container:         #F1ECF9;
+  --md-surface-container-high:    #EBE6F4;
+  --md-surface-container-highest: #E5E0EE;
 
-  /* Roles */
-  --md-primary: var(--c-primary);
-  --md-on-primary: #FFFFFF;
+  --md-on-surface:         #1C1B22;
+  --md-on-surface-variant: #48444F;
+  --md-outline:            #7A7585;
+  --md-outline-variant:    #CAC5D5;
+  --md-inverse-surface:    #312F38;
+  --md-inverse-on-surface: #F4EFFD;
+  --md-inverse-primary:    #CBBEFF;
 
-  --md-primary-container: #E8E6F4;
-  --md-on-primary-container: #1D1935;
+  --md-shadow:             #000000;
+  --md-scrim:              #000000;
 
-  --md-secondary-container: #E3E1F0;
-  --md-on-secondary-container: #211C3A;
+  /* Elevation as tonal surfaces — MD3 approach */
+  --elev-1: 0px 1px 2px rgba(0,0,0,.08), 0px 1px 3px 1px rgba(0,0,0,.06);
+  --elev-2: 0px 1px 2px rgba(0,0,0,.10), 0px 2px 6px 2px rgba(0,0,0,.07);
+  --elev-3: 0px 4px 8px 3px rgba(0,0,0,.08), 0px 1px 3px rgba(0,0,0,.10);
 
-  /* Highlight */
-  --md-highlight: rgba(240,195,142,.55);
+  /* Shape — MD3 */
+  --shape-xs:    4px;
+  --shape-sm:    8px;
+  --shape-md:    12px;
+  --shape-lg:    16px;
+  --shape-xl:    28px;
+  --shape-full:  999px;
 
-  /* Shape */
-  --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 20px;
+  /* Type */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
 
-  /* Elevation */
-  --e1: 0 1px 2px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
-  --e2: 0 2px 6px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
+  /* Motion — MD3 */
+  --motion-dur-short1:  50ms;
+  --motion-dur-short2:  100ms;
+  --motion-dur-medium1: 200ms;
+  --motion-dur-medium2: 300ms;
+  --motion-dur-long1:   400ms;
+  --motion-easing-std:  cubic-bezier(.2, 0, 0, 1);
+  --motion-easing-decel: cubic-bezier(0, 0, 0, 1);
+  --motion-easing-accel: cubic-bezier(.3, 0, 1, 1);
 
-  /* State layers */
-  --state-hover: rgba(49,44,81,.07);
-  --state-press: rgba(49,44,81,.12);
+  /* Sticky top offset (set by JS) */
+  --sticky-top: 80px;
 
-  /* Sticky offset (set by JS) */
-  --stickyTop: 110px;
-
-  /* Motion */
-  --anim-fast: 160ms;
-  --anim-med: 220ms;
-  --ease: cubic-bezier(.2,.0,0,1);
+  /* Accent for selection highlight */
+  --highlight: rgba(200, 180, 255, 0.45);
 }
 
-body.dark{
-  /* Dark surfaces */
-  --md-surface: #12111A;
-  --md-surface-container: #1B1926;
-  --md-surface-container-high: #232135;
-  --md-surface-container-highest: #2B2942;
+/* ────── DARK THEME ────── */
+body.dark {
+  --md-primary:            #CBBEFF;
+  --md-on-primary:         #2D2265;
+  --md-primary-container:  #3D3276;
+  --md-on-primary-container: #E8E4FF;
 
-  --md-on-surface: #ECEAF6;
-  --md-on-surface-variant: #BDB9D6;
+  --md-secondary:          #C8C3E0;
+  --md-on-secondary:       #302B46;
+  --md-secondary-container: #47415E;
+  --md-on-secondary-container: #E4DFFA;
 
-  --md-outline: #9A96B8;
-  --md-outline-variant: #44415B;
+  --md-tertiary:           #FFBA48;
+  --md-on-tertiary:        #6A3A00;
+  --md-tertiary-container: #975500;
+  --md-on-tertiary-container: #FFDEA0;
 
-  /* Roles */
-  --md-primary: #C7C2FF;
-  --md-on-primary: #27234A;
+  --md-surface:            #141218;
+  --md-surface-dim:        #141218;
+  --md-surface-bright:     #3B383F;
+  --md-surface-container-lowest:  #0F0D13;
+  --md-surface-container-low:     #1C1B22;
+  --md-surface-container:         #201F27;
+  --md-surface-container-high:    #2B2930;
+  --md-surface-container-highest: #36343B;
 
-  --md-primary-container: #2D2A52;
-  --md-on-primary-container: #E9E7FF;
+  --md-on-surface:         #E6E0EF;
+  --md-on-surface-variant: #CAC4D5;
+  --md-outline:            #948FA0;
+  --md-outline-variant:    #49454E;
+  --md-inverse-surface:    #E6E0EF;
+  --md-inverse-on-surface: #312F38;
+  --md-inverse-primary:    #4A3F8C;
 
-  --md-secondary-container: #34305F;
-  --md-on-secondary-container: #E6E3FF;
+  --elev-1: 0px 1px 2px rgba(0,0,0,.4), 0px 1px 3px 1px rgba(0,0,0,.3);
+  --elev-2: 0px 1px 2px rgba(0,0,0,.5), 0px 2px 6px 2px rgba(0,0,0,.35);
+  --elev-3: 0px 4px 8px 3px rgba(0,0,0,.4), 0px 1px 3px rgba(0,0,0,.5);
 
-  --md-highlight: rgba(240,195,142,.28);
-
-  --e1: 0 1px 2px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.35);
-  --e2: 0 4px 10px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.35);
-
-  --state-hover: rgba(240,195,142,.10);
-  --state-press: rgba(240,195,142,.18);
+  --highlight: rgba(180, 160, 255, 0.28);
 }
 
-*{ box-sizing:border-box; }
+/* ────── RESET & BASE ────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-body{
-  font-family: var(--font);
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
   background: var(--md-surface);
   color: var(--md-on-surface);
-  margin:0;
-  padding:20px;
+  margin: 0;
+  padding: 0;
+  transition: background var(--motion-dur-medium1) var(--motion-easing-std),
+              color var(--motion-dur-medium1) var(--motion-easing-std);
+  min-height: 100vh;
 }
 
-/* Topbar */
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:14px;
-}
-
-.topbar-left{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  min-width:220px;
-}
-
-.brand{ display:flex; flex-direction:column; gap:4px; }
-
-h1{
-  margin:0;
-  font-weight:650;
-  letter-spacing:-.2px;
-  font-size:28px;
-  line-height:32px;
-  color: var(--md-on-surface);
-}
-
-a{
-  color: var(--md-primary);
-  text-decoration:none;
-  font-weight:650;
-  font-size:14px;
-}
-a:hover{ text-decoration:underline; }
-
-.topbar-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
-/* Inputs base */
-input:not([type="checkbox"]), select, textarea{
-  width:100%;
-  border-radius: var(--r-md);
-  border:1px solid var(--md-outline-variant);
+/* ────── TOP APP BAR (MD3) ────── */
+.top-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: var(--md-surface-container);
-  color: var(--md-on-surface);
-  padding: 12px 14px;
-  font-size:14px;
-  outline:none;
-  transition: border-color var(--anim-fast) var(--ease),
-              box-shadow var(--anim-fast) var(--ease),
-              background var(--anim-fast) var(--ease);
+  border-bottom: 1px solid var(--md-outline-variant);
+  padding: 0 24px;
+  transition: background var(--motion-dur-medium1) var(--motion-easing-std),
+              box-shadow var(--motion-dur-medium1) var(--motion-easing-std);
 }
 
-input:not([type="checkbox"]):focus, select:focus, textarea:focus{
-  border-color: var(--md-primary);
-  box-shadow: 0 0 0 3px rgba(49,44,81,.18);
+.top-app-bar.scrolled {
   background: var(--md-surface-container-high);
+  box-shadow: var(--elev-2);
 }
 
-body.dark input:not([type="checkbox"]):focus,
-body.dark select:focus,
-body.dark textarea:focus{
-  box-shadow: 0 0 0 3px rgba(240,195,142,.16);
+.top-bar-row1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 8px;
+  min-height: 64px;
 }
 
-textarea{
-  min-height: 72px;
-  resize: vertical;
+.top-bar-row2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 10px;
+  flex-wrap: wrap;
 }
 
-/* Header search */
-.header-search{ width: 260px; }
+.top-bar-row2:empty { display: none; }
 
-.search-wrapper{ position:relative; }
-.clear-search{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  width:28px;
-  height:28px;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  border-radius:999px;
-  cursor:pointer;
+/* Brand */
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: var(--md-on-surface);
+  margin: 0;
+}
+
+.brand-title span {
+  color: var(--md-primary);
+}
+
+.brand-sub {
+  font-size: 11px;
+  font-weight: 500;
   color: var(--md-on-surface-variant);
-  transition: background var(--anim-fast) var(--ease);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
 }
-.clear-search:hover{ background: var(--state-hover); }
-.clear-search:active{ background: var(--state-press); }
 
-/* Buttons */
-button{
+/* How to use link */
+.help-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-primary);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: var(--shape-full);
+  transition: background var(--motion-dur-short2) var(--motion-easing-std);
+}
+.help-link:hover {
+  background: color-mix(in srgb, var(--md-primary) 12%, transparent);
+  text-decoration: none;
+}
+
+.spacer { flex: 1 1 auto; }
+
+/* Search field — MD3 filled text field */
+.search-field {
+  position: relative;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.search-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 40px 0 44px;
+  background: var(--md-surface-container-highest);
   border: none;
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-weight: 650;
+  border-radius: var(--shape-full);
+  font-family: var(--font-body);
   font-size: 14px;
-  cursor:pointer;
-  transition: transform 80ms var(--ease),
-              filter var(--anim-fast) var(--ease),
-              background var(--anim-fast) var(--ease),
-              box-shadow var(--anim-fast) var(--ease);
-  user-select:none;
-  white-space:nowrap;
+  color: var(--md-on-surface);
+  outline: none;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std);
 }
-button:active{ transform: translateY(1px); }
 
-button.filled{
+.search-field input::placeholder {
+  color: var(--md-on-surface-variant);
+}
+
+.search-field input:focus {
+  background: var(--md-surface-container-highest);
+  box-shadow: 0 0 0 2px var(--md-primary);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  fill: var(--md-on-surface-variant);
+  pointer-events: none;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--shape-full);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--md-on-surface-variant);
+  transition: background var(--motion-dur-short2) var(--motion-easing-std);
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.clear-search:hover {
+  background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
+}
+
+/* Upload zone */
+.upload-zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#dropzone {
+  height: 44px;
+  padding: 0 16px;
+  border: 1.5px dashed var(--md-outline);
+  border-radius: var(--shape-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+  white-space: nowrap;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              border-color var(--motion-dur-short2) var(--motion-easing-std),
+              color var(--motion-dur-short2) var(--motion-easing-std);
+  user-select: none;
+}
+
+#dropzone.dragover {
+  background: color-mix(in srgb, var(--md-primary) 12%, transparent);
+  border-color: var(--md-primary);
+  border-style: solid;
+  color: var(--md-primary);
+}
+
+/* File pill — MD3 input chip */
+.file-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px 0 10px;
+  border-radius: var(--shape-full);
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-low);
+  max-width: 220px;
+  animation: chipIn var(--motion-dur-medium1) var(--motion-easing-decel);
+}
+
+@keyframes chipIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.file-chip-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--md-primary);
+  flex-shrink: 0;
+}
+
+.file-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Sheet tabs — MD3 secondary tab style */
+.sheet-tabs {
+  display: none;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sheet-chip {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--shape-full);
+  border: 1px solid var(--md-outline-variant);
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              border-color var(--motion-dur-short2) var(--motion-easing-std),
+              color var(--motion-dur-short2) var(--motion-easing-std);
+  white-space: nowrap;
+}
+
+.sheet-chip:hover {
+  background: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
+}
+
+.sheet-chip.active {
+  background: var(--md-secondary-container);
+  border-color: transparent;
+  color: var(--md-on-secondary-container);
+}
+
+/* Icon buttons */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--shape-full);
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--md-on-surface-variant);
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              transform var(--motion-dur-short1) var(--motion-easing-std);
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  background: color-mix(in srgb, var(--md-on-surface) 10%, transparent);
+}
+
+.icon-btn:active { transform: scale(0.92); }
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* ────── BUTTONS ────── */
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  transition: box-shadow var(--motion-dur-short2) var(--motion-easing-std),
+              background var(--motion-dur-short2) var(--motion-easing-std),
+              transform var(--motion-dur-short1) var(--motion-easing-std);
+  white-space: nowrap;
+  user-select: none;
+}
+
+button:active { transform: scale(0.97); }
+
+.btn-filled {
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--shape-full);
+  border: none;
   background: var(--md-primary);
   color: var(--md-on-primary);
-  box-shadow: var(--e1);
+  box-shadow: var(--elev-1);
 }
-button.filled:hover{ filter: brightness(0.98); box-shadow: var(--e2); }
 
-button.outlined{
+.btn-filled:hover {
+  box-shadow: var(--elev-2);
+  background: color-mix(in srgb, var(--md-primary) 92%, var(--md-on-primary) 8%);
+}
+
+.btn-tonal {
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--shape-full);
+  border: none;
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+
+.btn-tonal:hover {
+  box-shadow: var(--elev-1);
+  background: color-mix(in srgb, var(--md-secondary-container) 92%, var(--md-on-secondary-container) 8%);
+}
+
+.btn-outlined {
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--shape-full);
+  border: 1px solid var(--md-outline);
   background: transparent;
   color: var(--md-primary);
-  border: 1px solid var(--md-outline);
-}
-button.outlined:hover{ background: var(--state-hover); }
-
-/* Icon button */
-.icon-btn{
-  width: 46px;
-  height: 46px;
-  border-radius: 999px;
-  border: 1px solid var(--md-outline-variant);
-  background: var(--md-surface-container);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition: background var(--anim-fast) var(--ease),
-              border-color var(--anim-fast) var(--ease),
-              box-shadow var(--anim-fast) var(--ease),
-              transform 80ms var(--ease);
-}
-.icon-btn:hover{
-  background: var(--md-surface-container-high);
-  box-shadow: var(--e1);
-}
-.icon-btn:active{ transform: translateY(1px); }
-.icon-btn svg{
-  width:28px;
-  height:28px;
-  fill: var(--md-on-surface-variant);
 }
 
-/* Upload */
-.header-upload{
-  display:flex;
-  align-items:center;
-  gap:8px;
+.btn-outlined:hover {
+  background: color-mix(in srgb, var(--md-primary) 8%, transparent);
 }
 
-#dropzone{
-  border: 1px dashed var(--md-outline);
-  border-radius: 999px;
-  padding: 8px 12px;
-  min-height: 38px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color: var(--md-on-surface-variant);
+.btn-text {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--shape-full);
+  border: none;
   background: transparent;
-  font-size: 12px;
-  user-select:none;
-  transition: background var(--anim-fast) var(--ease),
-              border-color var(--anim-fast) var(--ease),
-              color var(--anim-fast) var(--ease);
-}
-#dropzone.dragover{
-  background: var(--state-hover);
-  border-color: var(--md-primary);
-  color: var(--md-on-surface);
+  color: var(--md-primary);
 }
 
-/* Loaded file pill (chip) */
-.file-pill{
-  display:none;
-  align-items:center;
-  gap:8px;
-  padding: 8px 12px;
-  border-radius: 999px;
+.btn-text:hover {
+  background: color-mix(in srgb, var(--md-primary) 8%, transparent);
+}
+
+.btn-load {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--shape-full);
+  border: none;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--elev-1);
+}
+
+.btn-load svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.btn-load:hover {
+  box-shadow: var(--elev-2);
+}
+
+/* ────── LAYOUT ────── */
+.page-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ────── CARDS / SURFACES ────── */
+.surface {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-xl);
   border: 1px solid var(--md-outline-variant);
+}
+
+.surface-flat {
   background: var(--md-surface-container);
-  max-width: 280px;
-}
-.file-pill .label{
-  color: var(--md-on-surface-variant);
-  font-size: 12px;
-  white-space:nowrap;
-}
-.file-pill .name{
-  font-size: 12px;
-  font-weight: 650;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-/* ✅ Sheet switcher chips */
-.sheet-tabs{
-  display:none;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.sheet-chip{
-  padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: var(--shape-lg);
   border: 1px solid var(--md-outline-variant);
-  background: var(--md-surface-container);
-  color: var(--md-on-surface);
-  font-size: 12px;
-  font-weight: 700;
-  cursor:pointer;
-  transition: background var(--anim-fast) var(--ease), border-color var(--anim-fast) var(--ease);
-}
-.sheet-chip:hover{ background: var(--md-surface-container-high); }
-.sheet-chip.active{
-  background: var(--md-primary-container);
-  border-color: var(--md-primary);
-  color: var(--md-on-primary-container);
 }
 
-/* Main grid */
-.main-grid{
-  display:grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 20px;
-  align-items:start;
-}
-
-/* Cards / Panels */
-.card{
-  background: var(--md-surface-container);
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--r-lg);
-  box-shadow: var(--e1);
-}
-
-.control-card{
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-.control-title{
-  color: var(--md-on-surface-variant);
-  font-size: 12px;
-  font-weight: 650;
-  margin-bottom: 8px;
-}
-
-.helper{
-  margin-top: 8px;
-  color: var(--md-on-surface-variant);
-  font-size: 12px;
-}
-
-.panel{ padding: 16px; }
-
-.sticky{
-  position: sticky;
-  top: var(--stickyTop);
-}
-
-/* Topics */
-.topic{
-  border-radius: var(--r-md);
-  overflow:hidden;
-  border: 1px solid var(--md-outline-variant);
-  background: var(--md-surface);
+/* Student name card */
+.student-card {
+  padding: 20px 20px 16px;
   margin-bottom: 12px;
 }
 
-.topic-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding: 12px 14px;
-  cursor:pointer;
-  background: var(--md-surface-container-high);
-  color: var(--md-on-surface);
-  font-weight: 650;
-  transition: background var(--anim-fast) var(--ease);
-}
-.topic-header:hover{ background: var(--md-surface-container-highest); }
-
-/* Animated collapse container */
-.topic-body{
-  padding: 0 14px;
-  display:block;
-  overflow:hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height var(--anim-med) var(--ease),
-              opacity var(--anim-med) var(--ease);
-  background: var(--md-surface);
-}
-.topic-body-inner{
-  padding: 12px 0 14px 0;
-}
-.topic-body.show{
-  opacity: 1;
-  max-height: 1800px;
-}
-
-/* Comments */
-.comment{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  padding: 8px 10px;
-  border-radius: var(--r-sm);
-  cursor:pointer;
-  transition: background var(--anim-fast) var(--ease);
-}
-.comment:hover{ background: var(--state-hover); }
-.comment:active{ background: var(--state-press); }
-
-.comment input[type="checkbox"]{
-  width:auto;
-  margin-top: 3px;
-  accent-color: var(--md-primary);
-}
-
-
-/* Per-comment note toggle */
-.comment-block{
-  display:block;
-}
-
-.note-toggle{
-  margin-left:auto;
-  width:28px;
-  height:28px;
-  border-radius:999px;
-  border:1px solid var(--md-outline-variant);
-  background: var(--md-surface-container);
+.student-card-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   color: var(--md-on-surface-variant);
-  font-weight: 850;
+  margin-bottom: 8px;
+}
+
+/* ────── TEXT FIELDS (MD3 filled) ────── */
+.text-field-wrapper {
+  position: relative;
+}
+
+.text-field-filled {
+  display: block;
+  width: 100%;
+  height: 56px;
+  padding: 22px 16px 8px;
+  background: var(--md-surface-container-highest);
+  border: none;
+  border-bottom: 1px solid var(--md-outline);
+  border-radius: var(--shape-md) var(--shape-md) 0 0;
+  font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition: background var(--anim-fast) var(--ease),
-              transform 80ms var(--ease);
-}
-.note-toggle:hover{ background: var(--md-surface-container-high); }
-.note-toggle:active{ transform: translateY(1px); }
-
-.comment-note{
-  margin: 6px 0 8px 34px; /* indent under comment text (after checkbox) */
-  width: calc(100% - 34px);
-  min-height: 60px;
+  color: var(--md-on-surface);
+  outline: none;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              border-color var(--motion-dur-short2) var(--motion-easing-std);
 }
 
+.text-field-filled::placeholder { color: transparent; }
 
-/* Highlight */
-.mark{
-  background: var(--md-highlight);
-  border-radius: 6px;
-  padding: 0 2px;
+.text-field-filled:focus {
+  border-bottom: 2px solid var(--md-primary);
+  background: color-mix(in srgb, var(--md-surface-container-highest) 98%, var(--md-primary) 2%);
 }
 
-/* Output */
-h3{
-  margin: 0 0 10px 0;
+.text-field-label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 16px;
-  font-weight: 750;
-  letter-spacing: .1px;
+  color: var(--md-on-surface-variant);
+  pointer-events: none;
+  transition: top var(--motion-dur-short2) var(--motion-easing-std),
+              font-size var(--motion-dur-short2) var(--motion-easing-std),
+              color var(--motion-dur-short2) var(--motion-easing-std),
+              transform var(--motion-dur-short2) var(--motion-easing-std);
+}
+
+.text-field-filled:focus ~ .text-field-label,
+.text-field-filled:not(:placeholder-shown) ~ .text-field-label {
+  top: 8px;
+  transform: none;
+  font-size: 12px;
+  color: var(--md-primary);
+}
+
+.text-field-helper {
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+  padding: 4px 16px 0;
+}
+
+/* ────── BUILDER PANEL ────── */
+.builder-panel {
+  padding: 16px;
+}
+
+.panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  text-align: center;
+  gap: 16px;
+}
+
+.panel-empty-icon {
+  width: 64px;
+  height: 64px;
+  fill: var(--md-outline-variant);
+}
+
+.panel-empty-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--md-on-surface-variant);
+  margin: 0;
+}
+
+.panel-empty-body {
+  font-size: 14px;
+  color: var(--md-outline);
+  max-width: 280px;
+  margin: 0;
+}
+
+/* ────── TOPIC ITEMS ────── */
+.topic {
+  border-radius: var(--shape-lg);
+  overflow: hidden;
+  border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container-lowest);
+  margin-bottom: 8px;
+  transition: box-shadow var(--motion-dur-short2) var(--motion-easing-std);
+}
+
+.topic:has(.topic-body.show) {
+  box-shadow: var(--elev-1);
+}
+
+.topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: var(--md-surface-container);
+  color: var(--md-on-surface);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.1px;
+  user-select: none;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std);
+  gap: 8px;
+}
+
+.topic-header:hover {
+  background: var(--md-surface-container-high);
+}
+
+.topic-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topic-chevron {
+  width: 20px;
+  height: 20px;
+  fill: var(--md-on-surface-variant);
+  flex-shrink: 0;
+  transition: transform var(--motion-dur-medium1) var(--motion-easing-std);
+}
+
+.topic-body.show ~ .topic-header .topic-chevron,
+.topic:has(.topic-body.show) .topic-chevron {
+  transform: rotate(180deg);
+}
+
+.topic-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topic-count {
+  height: 24px;
+  min-width: 24px;
+  padding: 0 8px;
+  border-radius: var(--shape-full);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              transform var(--motion-dur-short2) var(--motion-easing-std);
+  flex-shrink: 0;
+}
+
+.topic-count[data-count="0"] {
+  background: var(--md-surface-container-highest);
+  color: var(--md-on-surface-variant);
+}
+
+/* Collapse animation */
+.topic-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--motion-dur-medium2) var(--motion-easing-std),
+              opacity var(--motion-dur-medium1) var(--motion-easing-std);
+}
+
+.topic-body.show {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.topic-body-inner {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--md-outline-variant);
+}
+
+/* Subcategory select — MD3 outlined */
+.sub-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: 1px solid var(--md-outline);
+  border-radius: var(--shape-full);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-surface);
+  outline: none;
+  margin-bottom: 10px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2348444F'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  cursor: pointer;
+  transition: border-color var(--motion-dur-short2) var(--motion-easing-std);
+}
+
+.sub-select:focus {
+  border-color: var(--md-primary);
+  border-width: 2px;
+}
+
+body.dark .sub-select {
+  background-color: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CAC4D5'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+}
+
+body.dark .sub-select option {
+  background-color: var(--md-surface-container-high);
   color: var(--md-on-surface);
 }
 
-#output{
+/* Comment items */
+.comment-block {
+  display: block;
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--shape-md);
+  cursor: pointer;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std);
+  position: relative;
+}
+
+.comment:hover {
+  background: color-mix(in srgb, var(--md-on-surface) 6%, transparent);
+}
+
+/* MD3 Checkbox */
+.comment input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--md-primary);
+  cursor: pointer;
+}
+
+.comment-text {
+  flex: 1;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--md-on-surface);
+}
+
+/* Note toggle — MD3 icon button small */
+.note-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--shape-full);
+  border: none;
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: background var(--motion-dur-short2) var(--motion-easing-std),
+              color var(--motion-dur-short2) var(--motion-easing-std);
+  padding: 0;
+  line-height: 1;
+}
+
+.note-toggle:hover {
+  background: color-mix(in srgb, var(--md-primary) 12%, transparent);
+  color: var(--md-primary);
+}
+
+.note-toggle.active {
+  color: var(--md-primary);
+}
+
+/* Per-comment note textarea */
+.comment-note {
+  display: block;
+  width: calc(100% - 30px);
+  margin: 4px 0 8px 42px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: 1px solid var(--md-outline);
+  border-radius: var(--shape-md);
+  background: var(--md-surface-container);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--md-on-surface);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--motion-dur-short2) var(--motion-easing-std);
+}
+
+.comment-note:focus {
+  border-color: var(--md-primary);
+  border-width: 2px;
+}
+
+/* Search highlight */
+.mark {
+  background: var(--highlight);
+  border-radius: 4px;
+  padding: 1px 2px;
+  font-weight: 700;
+}
+
+/* ────── OUTPUT PANEL (right column) ────── */
+.output-panel {
+  padding: 20px;
+}
+
+.sticky-panel {
+  position: sticky;
+  top: var(--sticky-top);
+}
+
+.output-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.output-label-text {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--md-on-surface);
+}
+
+.output-badge {
+  height: 20px;
+  padding: 0 8px;
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+  border-radius: var(--shape-full);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Output text area */
+#output {
+  min-height: 200px;
   background: var(--md-surface);
   border: 1px solid var(--md-outline-variant);
-  border-radius: var(--r-lg);
-  padding: 14px;
-  min-height: 220px;
+  border-radius: var(--shape-lg);
+  padding: 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
   white-space: pre-wrap;
-  line-height: 1.6;
+  color: var(--md-on-surface);
+  transition: border-color var(--motion-dur-short2) var(--motion-easing-std);
 }
 
-/* Responsive */
-@media (max-width: 1100px){
-  .header-search{ width: 210px; }
-  .file-pill{ max-width: 220px; }
+#output:not(:empty) {
+  border-color: var(--md-outline);
 }
 
-@media (max-width: 900px){
-  .main-grid{ grid-template-columns: 1fr; }
-  .sticky{ position: static; }
-  .topbar{ align-items:flex-start; }
-  .topbar-right{ justify-content:flex-start; }
-  .header-search{ width: 100%; }
-  .file-pill{ max-width: 100%; }
+.output-placeholder {
+  color: var(--md-outline);
+  font-style: italic;
+  font-size: 13px;
 }
 
-/* ---------- Confirm dialog (Start new student) ---------- */
-#confirmOverlay{
+/* Output actions */
+.output-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Copy feedback animation */
+.btn-filled.copied {
+  background: #1E8C4E;
+}
+
+/* ────── CONFIRM DIALOG ────── */
+#confirmOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.35);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 9999;
 }
 
-#confirmDialog{
-  background: var(--md-surface-container);
-  border: 1px solid var(--md-outline-variant);
-  border-radius: var(--r-lg);
-  padding: 22px;
-  width: min(420px, calc(100vw - 40px));
-  box-shadow: var(--e2);
-  animation: dialogIn var(--anim-med) var(--ease);
+#confirmDialog {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-xl);
+  padding: 24px;
+  width: min(400px, calc(100vw - 48px));
+  box-shadow: var(--elev-3);
+  animation: dialogIn var(--motion-dur-medium1) var(--motion-easing-decel);
 }
 
-#confirmDialog h3{
-  margin: 0 0 10px 0;
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-#confirmDialog p{
-  margin: 0 0 18px 0;
-  color: var(--md-on-surface-variant);
+.dialog-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin: 0 0 10px;
+  color: var(--md-on-surface);
+}
+
+.dialog-body {
   font-size: 14px;
-  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+  margin: 0 0 24px;
+  line-height: 1.6;
 }
 
-.dialog-actions{
+.dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
-@keyframes dialogIn{
-  from { transform: translateY(6px) scale(.98); opacity: 0; }
-  to   { transform: translateY(0)  scale(1);   opacity: 1; }
+/* ────── DIVIDER ────── */
+.divider {
+  height: 1px;
+  background: var(--md-outline-variant);
+  margin: 12px 0;
 }
+
+/* ────── RESPONSIVE ────── */
+@media (max-width: 1100px) {
+  .search-field { width: 200px; }
+}
+
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  .sticky-panel {
+    position: static;
+  }
+  .search-field { width: 100%; min-width: 160px; }
+}
+
+@media (max-width: 600px) {
+  .page-content { padding: 16px; }
+  .top-app-bar { padding: 0 16px; }
+  .brand-title { font-size: 18px; }
+}
+
+/* ────── SCROLLBAR (subtle) ────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: 3px;
+}
+
+/* ────── FOOTER ────── */
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--md-outline);
+  border-top: 1px solid var(--md-outline-variant);
+}
+
+/* Page entry animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.main-grid { animation: fadeUp var(--motion-dur-medium2) var(--motion-easing-decel) 0.1s both; }
+.top-app-bar { animation: fadeUp var(--motion-dur-medium1) var(--motion-easing-decel) both; }
 </style>
 </head>
 
 <body>
 
-<div class="topbar" id="topbar">
-  <div class="topbar-left">
-    <div class="brand">
-      <h1>FeedbackCompilerHE v0.1</h1>
-      <a href="#" onclick="openHelp(); return false;">How to use</a>
+<!-- ── TOP APP BAR ── -->
+<header class="top-app-bar" id="topbar">
+  <div class="top-bar-row1">
+    <!-- Brand -->
+    <div class="brand-block">
+      <h1 class="brand-title">Feedback<span>Compiler</span></h1>
+      <div class="brand-sub">Higher Education · v0.1</div>
     </div>
-  </div>
+    <a class="help-link" href="#" onclick="openHelp(); return false;">How to use</a>
+    <div class="spacer"></div>
 
-  <div class="topbar-right">
     <!-- Search -->
-    <div class="search-wrapper header-search">
-      <input type="text" id="searchBox" placeholder="Search…" oninput="handleSearchInput()">
-      <span class="clear-search" id="clearSearch" onclick="clearSearch()" aria-label="Clear search" title="Clear">✕</span>
+    <div class="search-field">
+      <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="searchBox" placeholder="Search comments…" oninput="handleSearchInput()">
+      <button class="clear-search" id="clearSearch" onclick="clearSearch()" aria-label="Clear search" title="Clear">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
     </div>
 
     <!-- Upload -->
-    <div class="header-upload">
-      <button class="filled" onclick="fileInput.click()">Load</button>
+    <div class="upload-zone">
+      <button class="btn-load" onclick="fileInput.click()">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Load
+      </button>
       <div id="dropzone" title="Drag & drop .xlsx here">Drop .xlsx</div>
       <input type="file" id="fileInput" accept=".xlsx" hidden>
     </div>
 
-    <!-- Loaded filename -->
-    <div class="file-pill" id="filePill" title="Currently loaded spreadsheet">
-      <span class="label">Loaded:</span>
-      <span class="name" id="fileName">—</span>
+    <!-- Loaded file chip -->
+    <div class="file-chip" id="filePill" title="Currently loaded spreadsheet">
+      <svg class="file-chip-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <span class="file-chip-name" id="fileName">—</span>
     </div>
 
-    <!-- ✅ Sheet selector (appears when workbook has >1 sheet) -->
-    <div class="sheet-tabs" id="sheetTabs" title="Select assessment sheet"></div>
-
-    <!-- Dark mode icon button -->
+    <!-- Dark mode toggle -->
     <button class="icon-btn" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode" aria-label="Toggle dark mode">
-      <svg id="darkIcon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"></path>
+      <svg id="darkIcon" viewBox="0 0 24 24">
+        <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"/>
       </svg>
     </button>
   </div>
-</div>
 
-<div class="main-grid">
-  <!-- LEFT COLUMN -->
-  <div>
-    <div class="card control-card">
-      <div class="control-title">Student name</div>
-      <input type="text" id="studentName" placeholder="Student name…" oninput="updateOutput()">
-      <div class="helper">Prefixed as “Name,” in output</div>
+  <!-- Sheet tabs row -->
+  <div class="top-bar-row2">
+    <div class="sheet-tabs" id="sheetTabs"></div>
+  </div>
+</header>
+
+<!-- ── PAGE CONTENT ── -->
+<main class="page-content">
+  <div class="main-grid">
+
+    <!-- LEFT: Builder -->
+    <div>
+      <!-- Student name -->
+      <div class="surface student-card" style="margin-bottom:12px;">
+        <div class="student-card-label">Student</div>
+        <div class="text-field-wrapper">
+          <input class="text-field-filled" type="text" id="studentName" placeholder="student" oninput="updateOutput()">
+          <label class="text-field-label" for="studentName">Student name</label>
+        </div>
+        <div class="text-field-helper">Prefixed as "Name," in compiled output</div>
+      </div>
+
+      <!-- Topic builder -->
+      <div class="surface builder-panel" id="builder">
+        <div class="panel-empty" id="builderEmpty">
+          <svg class="panel-empty-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          <p class="panel-empty-title">No spreadsheet loaded</p>
+          <p class="panel-empty-body">Load an .xlsx file with Topic, Subcategory, and Comment columns to get started.</p>
+        </div>
+      </div>
     </div>
 
-    <div class="card panel" id="builder"></div>
-  </div>
-
-  <!-- RIGHT COLUMN (sticky) -->
-  <div class="card panel sticky">
-    <h3>Compiled feedback</h3>
-    <div id="output"></div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-      <button class="filled" onclick="copyFeedback()">Copy</button>
-      <button class="outlined" onclick="clearAll()">Start new student</button>
+    <!-- RIGHT: Output -->
+    <div>
+      <div class="surface output-panel sticky-panel" id="outputPanel">
+        <div class="output-label">
+          <span class="output-label-text">Compiled Feedback</span>
+          <span class="output-badge">Output</span>
+        </div>
+        <div id="output"><span class="output-placeholder">Select comments from the left to compile feedback…</span></div>
+        <div class="output-actions">
+          <button class="btn-filled" id="copyBtn" onclick="copyFeedback()">
+            Copy
+          </button>
+          <button class="btn-outlined" onclick="clearAll()">New student</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- Confirm dialog: Start new student -->
+  </div>
+</main>
+
+<footer class="footer">Open Source and free to distribute. Made (at home) by Fraser Simpson in 2026</footer>
+
+<!-- ── CONFIRM DIALOG ── -->
 <div id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div id="confirmDialog">
-    <h3 id="confirmTitle">Start new student?</h3>
-    <p>This will clear all selected feedback across all assessment tabs.</p>
+    <h3 class="dialog-title" id="confirmTitle">Start new student?</h3>
+    <p class="dialog-body">This will clear all selected feedback, notes, and filters across all assessment sheets.</p>
     <div class="dialog-actions">
-      <button id="confirmContinue" class="filled" type="button">Continue</button>
-      <button id="confirmCancel" class="outlined" type="button">Cancel</button>
+      <button class="btn-text" id="confirmCancel" type="button">Cancel</button>
+      <button class="btn-filled" id="confirmContinue" type="button">Continue</button>
     </div>
   </div>
 </div>
 
+
+<!-- ── JAVASCRIPT (logic unchanged) ── -->
 <script>
 /* ======================
    Data model for sheets
    ====================== */
-
-let dataBySheet = {};   // { sheetName: { Topic: { Subcategory: [Comment] } } }
-let stateBySheet = {};  // { sheetName: { Topic: {selected:Set, freeText, expanded, filter} } }
+let dataBySheet = {};
+let stateBySheet = {};
 let sheetNames = [];
-let currentSheet = "";  // active sheet name
+let currentSheet = "";
 
 function getCurrentData() {
   return dataBySheet[currentSheet] || {};
@@ -667,34 +1207,38 @@ function getCurrentState() {
 function setStickyTop() {
   const topbar = document.getElementById("topbar");
   const h = topbar ? topbar.offsetHeight : 0;
-  document.documentElement.style.setProperty("--stickyTop", (h + 14) + "px");
+  document.documentElement.style.setProperty("--sticky-top", (h + 16) + "px");
 }
 window.addEventListener("load", setStickyTop);
 window.addEventListener("resize", setStickyTop);
+
+/* Scroll detection for top bar elevation */
+window.addEventListener("scroll", () => {
+  const bar = document.getElementById("topbar");
+  if (window.scrollY > 4) bar.classList.add("scrolled");
+  else bar.classList.remove("scrolled");
+});
 
 /* Dark icon */
 function setDarkIcon() {
   const icon = document.getElementById("darkIcon");
   const isDark = document.body.classList.contains("dark");
   if (isDark) {
-    icon.innerHTML = `
-      <path d="M12 18a6 6 0 1 1 0-12a6 6 0 0 1 0 12Zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM4.22 5.64a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41ZM17.66 19.07a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41ZM2 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm18 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1ZM5.64 19.78a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0ZM19.07 6.34a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0Z"></path>
-    `;
+    icon.innerHTML = `<path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zM4.22 5.64a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41zm13.44 13.43a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41zM2 12a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1zm18 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1zM5.64 19.78a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0zm13.43-13.44a1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1-1.41 0z"/>`;
   } else {
-    icon.innerHTML = `
-      <path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"></path>
-    `;
+    icon.innerHTML = `<path d="M21 14.5A7.5 7.5 0 0 1 9.5 3a.9.9 0 0 1 1.1 1.1A5.7 5.7 0 0 0 18.9 12.4a.9.9 0 0 1 1.1 1.1Z"/>`;
   }
 }
 
 /* Search clear */
-function handleSearchInput(){
+function handleSearchInput() {
   const box = document.getElementById("searchBox");
   const clear = document.getElementById("clearSearch");
   clear.style.display = box.value ? "inline-flex" : "none";
   render();
 }
-function clearSearch(){
+
+function clearSearch() {
   document.getElementById("searchBox").value = "";
   document.getElementById("clearSearch").style.display = "none";
   render();
@@ -714,7 +1258,7 @@ dropzone.addEventListener("drop", e => {
   loadWorkbook(e.dataTransfer.files[0]);
 });
 
-function showLoadedFileName(name){
+function showLoadedFileName(name) {
   const pill = document.getElementById("filePill");
   const label = document.getElementById("fileName");
   if (name) {
@@ -726,9 +1270,10 @@ function showLoadedFileName(name){
   }
 }
 
-/* ✅ Build sheet buttons */
+/* Build sheet buttons */
 function renderSheetTabs() {
   const tabs = document.getElementById("sheetTabs");
+  const row2 = tabs.parentElement;
   tabs.innerHTML = "";
 
   if (!sheetNames || sheetNames.length <= 1) {
@@ -757,7 +1302,7 @@ function switchSheet(name) {
   render();
 }
 
-/* ✅ Load workbook with multiple sheets */
+/* Load workbook with multiple sheets */
 function loadWorkbook(file) {
   if (!file) return;
 
@@ -769,7 +1314,7 @@ function loadWorkbook(file) {
     sheetNames = wb.SheetNames.slice();
 
     dataBySheet = {};
-    stateBySheet = {}; // reset state when a new workbook is loaded
+    stateBySheet = {};
 
     sheetNames.forEach(sheetName => {
       const sheet = wb.Sheets[sheetName];
@@ -785,10 +1330,9 @@ function loadWorkbook(file) {
 
       dataBySheet[sheetName] = sheetData;
 
-      // init state for topics (collapsed by default)
       const s = {};
       Object.keys(sheetData).forEach(topic => {
-        s[topic] = { selected:new Set(), expanded:false, filter:"All", commentNotes:{} };
+        s[topic] = { selected: new Set(), expanded: false, filter: "All", commentNotes: {} };
       });
       stateBySheet[sheetName] = s;
     });
@@ -800,24 +1344,24 @@ function loadWorkbook(file) {
   reader.readAsBinaryString(file);
 }
 
-/* Highlight */
-function highlight(text, query){
-  if(!query) return document.createTextNode(text);
+/* Highlight matching text */
+function highlight(text, query) {
+  if (!query) return document.createTextNode(text);
 
   const span = document.createElement("span");
   const lower = text.toLowerCase();
   const q = query.toLowerCase();
 
-  let i=0;
-  while(true){
+  let i = 0;
+  while (true) {
     const idx = lower.indexOf(q, i);
-    if(idx === -1) break;
+    if (idx === -1) break;
 
     span.appendChild(document.createTextNode(text.slice(i, idx)));
 
     const mark = document.createElement("span");
-    mark.className="mark";
-    mark.textContent = text.slice(idx, idx+q.length);
+    mark.className = "mark";
+    mark.textContent = text.slice(idx, idx + q.length);
     span.appendChild(mark);
 
     i = idx + q.length;
@@ -827,77 +1371,101 @@ function highlight(text, query){
 }
 
 /* Render current sheet */
-function render(){
-  builder.innerHTML="";
-  const q = (document.getElementById("searchBox").value || "").toLowerCase();
+function render() {
+  const builder = document.getElementById("builder");
+  const empty = document.getElementById("builderEmpty");
 
+  // Clear only topic nodes (keep empty state el if present)
+  Array.from(builder.querySelectorAll(".topic")).forEach(el => el.remove());
+
+  const q = (document.getElementById("searchBox").value || "").toLowerCase();
   const data = getCurrentData();
   const state = getCurrentState();
 
-  Object.entries(data).forEach(([topic, subs])=>{
-    state[topic] ??= {selected:new Set(), expanded:false, filter:"All", commentNotes:{}};
+  const hasData = Object.keys(data).length > 0;
+  if (empty) empty.style.display = hasData ? "none" : "flex";
 
-    const wrap=document.createElement("div");
-    wrap.className="topic";
+  Object.entries(data).forEach(([topic, subs]) => {
+    state[topic] ??= { selected: new Set(), expanded: false, filter: "All", commentNotes: {} };
 
-    const header=document.createElement("div");
-    header.className="topic-header";
-    header.innerHTML=`${topic} <span style="color:var(--md-on-surface-variant); font-weight:650;">(${state[topic].selected.size})</span>`;
-    header.onclick=()=>{
-      state[topic].expanded=!state[topic].expanded;
+    const wrap = document.createElement("div");
+    wrap.className = "topic";
+
+    const header = document.createElement("div");
+    header.className = "topic-header";
+
+    const chevronSvg = `<svg class="topic-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>`;
+    const count = state[topic].selected.size;
+
+    header.innerHTML = `
+      <div class="topic-header-left">
+        ${chevronSvg}
+        <span class="topic-name">${topic}</span>
+      </div>
+      <span class="topic-count" data-count="${count}">${count}</span>
+    `;
+
+    header.onclick = () => {
+      state[topic].expanded = !state[topic].expanded;
       render();
     };
 
-    const body=document.createElement("div");
-    body.className="topic-body"+(state[topic].expanded?" show":"");
+    const body = document.createElement("div");
+    body.className = "topic-body" + (state[topic].expanded ? " show" : "");
 
-    const inner=document.createElement("div");
-    inner.className="topic-body-inner";
+    const inner = document.createElement("div");
+    inner.className = "topic-body-inner";
 
-    const select=document.createElement("select");
-    ["All",...Object.keys(subs)].forEach(s=>{
-      const o=document.createElement("option");
-      o.textContent=s;
+    const select = document.createElement("select");
+    select.className = "sub-select";
+    ["All", ...Object.keys(subs)].forEach(s => {
+      const o = document.createElement("option");
+      o.textContent = s;
       select.appendChild(o);
     });
-    select.value=state[topic].filter;
-    select.onchange=()=>{
-      state[topic].filter=select.value;
+    select.value = state[topic].filter;
+    select.onchange = () => {
+      state[topic].filter = select.value;
       render();
     };
     inner.appendChild(select);
 
-    Object.entries(subs).forEach(([sub,comments])=>{
-      if(state[topic].filter!=="All" && sub!==state[topic].filter) return;
+    Object.entries(subs).forEach(([sub, comments]) => {
+      if (state[topic].filter !== "All" && sub !== state[topic].filter) return;
 
       comments
-        .filter(c=>c.toLowerCase().includes(q))
-        .forEach(text=>{
+        .filter(c => c.toLowerCase().includes(q))
+        .forEach(text => {
           state[topic].commentNotes ||= {};
-          state[topic].commentNotes[text] ||= { open:false, text:"" };
+          state[topic].commentNotes[text] ||= { open: false, text: "" };
 
           const block = document.createElement("div");
           block.className = "comment-block";
 
-          const label=document.createElement("label");
-          label.className="comment";
+          const label = document.createElement("label");
+          label.className = "comment";
 
-          const cb=document.createElement("input");
-          cb.type="checkbox";
-          cb.checked=state[topic].selected.has(text);
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = state[topic].selected.has(text);
 
-          cb.onchange=()=>{
+          cb.onchange = () => {
             cb.checked ? state[topic].selected.add(text) : state[topic].selected.delete(text);
             updateOutput();
-            render(); // refresh counts
+            render();
           };
 
-          const toggle=document.createElement("button");
-          toggle.type="button";
-          toggle.className="note-toggle";
-          toggle.textContent = state[topic].commentNotes[text].open ? "–" : "+";
+          const textSpan = document.createElement("span");
+          textSpan.className = "comment-text";
+          textSpan.appendChild(highlight(text, q));
+
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "note-toggle" + (state[topic].commentNotes[text].open ? " active" : "");
           toggle.title = state[topic].commentNotes[text].open ? "Hide note" : "Add note";
-          toggle.onclick=(e)=>{
+          toggle.textContent = state[topic].commentNotes[text].open ? "−" : "+";
+
+          toggle.onclick = e => {
             e.preventDefault();
             e.stopPropagation();
             state[topic].commentNotes[text].open = !state[topic].commentNotes[text].open;
@@ -905,17 +1473,16 @@ function render(){
           };
 
           label.appendChild(cb);
-          label.appendChild(highlight(text,q));
+          label.appendChild(textSpan);
           label.appendChild(toggle);
-
           block.appendChild(label);
 
-          if (state[topic].commentNotes[text].open){
-            const noteTa=document.createElement("textarea");
-            noteTa.className="comment-note";
-            noteTa.placeholder="Optional note for this comment…";
-            noteTa.value=state[topic].commentNotes[text].text || "";
-            noteTa.oninput=()=>{
+          if (state[topic].commentNotes[text].open) {
+            const noteTa = document.createElement("textarea");
+            noteTa.className = "comment-note";
+            noteTa.placeholder = "Optional note for this comment…";
+            noteTa.value = state[topic].commentNotes[text].text || "";
+            noteTa.oninput = () => {
               state[topic].commentNotes[text].text = noteTa.value;
               updateOutput();
             };
@@ -926,20 +1493,20 @@ function render(){
         });
     });
 
-
     body.appendChild(inner);
-    wrap.append(header,body);
+    wrap.append(header, body);
     builder.appendChild(wrap);
   });
 
   updateOutput();
 }
 
-/* ✅ Output: ONE paragraph per topic (within the current sheet only) */
-function updateOutput(){
+/* Output: ONE paragraph per topic */
+function updateOutput() {
   const name = document.getElementById("studentName").value.trim();
   const data = getCurrentData();
   const state = getCurrentState();
+  const outputEl = document.getElementById("output");
 
   const paragraphs = [];
 
@@ -952,23 +1519,28 @@ function updateOutput(){
 
     const pieces = selected.map(t => {
       const base = t.trim();
-      const note = (s.commentNotes && s.commentNotes[t] && s.commentNotes[t].text) ? s.commentNotes[t].text.trim() : "";
+      const note = (s.commentNotes && s.commentNotes[t] && s.commentNotes[t].text)
+        ? s.commentNotes[t].text.trim() : "";
       return note ? (base + " " + note) : base;
     }).filter(Boolean);
 
     if (pieces.length === 0) return;
-
     paragraphs.push(pieces.join(" "));
   });
 
   let result = paragraphs.join("\n\n");
   if (name) result = name + ",\n\n" + result;
 
-  output.textContent = result.trim();
+  if (result.trim()) {
+    outputEl.textContent = result.trim();
+    outputEl.style.fontStyle = "normal";
+  } else {
+    outputEl.innerHTML = '<span class="output-placeholder">Select comments from the left to compile feedback…</span>';
+  }
 }
 
 /* Confirm dialog for Start new student */
-function showConfirmDialog(onConfirm){
+function showConfirmDialog(onConfirm) {
   const overlay = document.getElementById("confirmOverlay");
   const btnContinue = document.getElementById("confirmContinue");
   const btnCancel = document.getElementById("confirmCancel");
@@ -976,25 +1548,21 @@ function showConfirmDialog(onConfirm){
   overlay.style.display = "flex";
   setTimeout(() => btnContinue.focus(), 0);
 
-  function close(){
+  function close() {
     overlay.style.display = "none";
     btnContinue.removeEventListener("click", confirm);
     btnCancel.removeEventListener("click", close);
     document.removeEventListener("keydown", onKey);
   }
 
-  function confirm(){
+  function confirm() {
     close();
     onConfirm();
   }
 
-  function onKey(e){
-    if(e.key === "Escape"){
-      close();
-    } else if(e.key === "Enter"){
-      e.preventDefault();
-      confirm();
-    }
+  function onKey(e) {
+    if (e.key === "Escape") close();
+    else if (e.key === "Enter") { e.preventDefault(); confirm(); }
   }
 
   btnContinue.addEventListener("click", confirm);
@@ -1002,124 +1570,149 @@ function showConfirmDialog(onConfirm){
   document.addEventListener("keydown", onKey);
 }
 
-/* Clear across ALL sheets (for next student) */
-function clearAll(){
-  showConfirmDialog(()=>{
+/* Clear across ALL sheets */
+function clearAll() {
+  showConfirmDialog(() => {
     Object.values(stateBySheet).forEach(sheetState => {
-      Object.values(sheetState).forEach(s=>{
+      Object.values(sheetState).forEach(s => {
         s.selected.clear();
         s.commentNotes = {};
-        s.expanded=false;
-        s.filter="All";
+        s.expanded = false;
+        s.filter = "All";
       });
     });
 
-    studentName.value="";
-    searchBox.value="";
-    document.getElementById("clearSearch").style.display="none";
+    document.getElementById("studentName").value = "";
+    document.getElementById("searchBox").value = "";
+    document.getElementById("clearSearch").style.display = "none";
     render();
   });
 }
 
-function copyFeedback(){
-  navigator.clipboard.writeText(output.textContent);
+/* Copy with visual feedback */
+function copyFeedback() {
+  const text = document.getElementById("output").textContent;
+  if (!text || text.includes("Select comments")) return;
+
+  navigator.clipboard.writeText(text);
+
+  const btn = document.getElementById("copyBtn");
+  btn.textContent = "Copied!";
+  btn.classList.add("copied");
+  setTimeout(() => {
+    btn.textContent = "Copy";
+    btn.classList.remove("copied");
+  }, 2000);
 }
 
-function toggleDark(){
+function toggleDark() {
   document.body.classList.toggle("dark");
   setDarkIcon();
 }
 
-/* Help window (unchanged content) */
-function openHelp(){
+/* Help window */
+function openHelp() {
   const w = window.open("", "_blank");
   w.document.write(`
-    <html>
-      <head>
-        <title>How to use FeedbackCompilerHE v0.1</title>
-        <meta charset="UTF-8">
-        <style>
-          body{
-            font-family: ${getComputedStyle(document.body).fontFamily};
-            background:#FAF9FC;
-            margin:0;
-            padding:40px;
-            color:#191824;
-            line-height:1.65;
-          }
-          .card{
-            max-width:900px;
-            margin:auto;
-            background:#ffffff;
-            border-radius:20px;
-            padding:32px;
-            box-shadow: 0 1px 2px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.08);
-            border:1px solid #D6D3E2;
-          }
-          h1{
-            margin-top:0;
-            font-size:24px;
-            color:#312C51;
-            letter-spacing:-.2px;
-          }
-          .important{
-            margin-top:24px;
-            padding:16px;
-            border-radius:16px;
-            background:#E8E6F4;
-            border:1px solid #D6D3E2;
-          }
-          .note{ margin-top:10px; }
-          code{
-            background:#F1F0F6;
-            padding:2px 6px;
-            border-radius:8px;
-            border:1px solid #DEDBE8;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <h1>How to use FeedbackCompilerHE v0.1</h1>
-
-          <ol>
-            <li>Create an excel spreadsheet using the <strong>'feedback_example'</strong> spreadsheet in the folder with this document. don't change the table headings, but you can change anything else in the spreadsheet to suit your module. using your own feedback ensures that using this tool is just a quick way of searching and reusing your own writing.</li>
-            <li>Load the spreadsheet using the 'Load Spreadsheet' button or by dragging and dropping into the upload field.</li>
-            <li>Enter the student's name at the top</li>
-            <li>Expand each drop-down to provide a comment on that Topic (you don't need to use every Topic).</li>
-            <li>You can filter for Subcategories, or you can select all.</li>
-            <li>Select one or more comment in each to copy it into the 'compiled feedback' field</li>
-            <li>Press the 'copy' button, and paste the feedback outside of the tool (in MLS, Word etc)</li>
-            <li>Press 'Start New Student' to clear all entries and start again.</li>
-          </ol>
-
-          <div class="important">
-            <strong>Important points:</strong>
-            <div class="note">• your spreadsheet must be formatted by <code>Topic</code> &gt; <code>Subcategory</code> &gt; <code>Comment</code></div>
-            <div class="note">• when using this tool, nothing is saved or stored anywhere, it's browser only. If you want a backup of the feedback, you'll need to save it somewhere.</div>
-          </div>
-        </div>
-      
-<footer style="text-align:center; margin-top:40px; font-size:12px; color:var(--md-on-surface-variant);">
-  © Fraser Simpson 2026
-</footer>
-
-</body>
-    </html>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>How to use FeedbackCompilerHE v0.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #4A3F8C;
+        --surface: #FDFBFF;
+        --surface-c: #F1ECF9;
+        --on-surface: #1C1B22;
+        --on-sv: #48444F;
+        --outline-v: #CAC5D5;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background: var(--surface-c);
+        margin: 0;
+        padding: 40px 24px 60px;
+        color: var(--on-surface);
+        line-height: 1.65;
+      }
+      .card {
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--surface);
+        border-radius: 28px;
+        padding: 36px 40px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 4px 12px rgba(0,0,0,.06);
+        border: 1px solid var(--outline-v);
+      }
+      h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 28px;
+        margin: 0 0 24px;
+        color: var(--primary);
+      }
+      ol { padding-left: 20px; }
+      li { margin-bottom: 10px; }
+      .callout {
+        margin-top: 28px;
+        padding: 18px 20px;
+        border-radius: 16px;
+        background: #E8E4FF;
+        border: 1px solid #C8C2F0;
+      }
+      .callout strong { color: var(--primary); }
+      .callout ul { padding-left: 16px; margin: 10px 0 0; }
+      .callout li { margin-bottom: 6px; font-size: 13.5px; }
+      code {
+        background: var(--surface-c);
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-size: 13px;
+        border: 1px solid var(--outline-v);
+        font-family: monospace;
+      }
+      footer { text-align: center; margin-top: 32px; font-size: 12px; color: #9390A2; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>How to use FeedbackCompilerHE</h1>
+      <ol>
+        <li>Create an Excel spreadsheet using the <strong>feedback_example</strong> file in the folder with this document. Don't change the table headings, but you can change anything else to suit your module.</li>
+        <li>Load the spreadsheet using the <strong>Load</strong> button or by dragging and dropping into the upload field.</li>
+        <li>Enter the student's name at the top of the builder.</li>
+        <li>Expand each topic section to browse available comments (you don't need to use every topic).</li>
+        <li>Filter by subcategory if needed, or leave on <em>All</em>.</li>
+        <li>Check one or more comments in each topic to add them to the compiled feedback.</li>
+        <li>Use the <strong>+</strong> button next to any comment to add a personalised note.</li>
+        <li>Press <strong>Copy</strong> and paste the feedback into your MLS, Word, or email.</li>
+        <li>Press <strong>New Student</strong> to clear all entries and start again.</li>
+      </ol>
+      <div class="callout">
+        <strong>Important</strong>
+        <ul>
+          <li>Your spreadsheet must be formatted with columns: <code>Topic</code> › <code>Subcategory</code> › <code>Comment</code></li>
+          <li>Nothing is saved or stored — this tool is browser-only. Save any feedback you want to keep externally.</li>
+        </ul>
+      </div>
+    </div>
+    <footer>Made (at home) by Fraser Simpson in 2026</footer>
+  </body>
+  </html>
   `);
 }
 
-/* init */
+/* Init */
 window.addEventListener("load", () => {
   setStickyTop();
   setDarkIcon();
+  render(); // show empty state
 });
 </script>
-
-
-<footer style="text-align:center; margin-top:40px; font-size:12px; color:var(--md-on-surface-variant);">
-  © Fraser Simpson 2026
-</footer>
 
 </body>
 </html>
