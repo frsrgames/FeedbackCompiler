@@ -1,0 +1,19 @@
+README
+
+# FeedbackCompiler
+
+FeedbackCompiler is a general-purpose tool designed to help educators compile commonly used feedback phrases more efficiently.
+
+It is intended as a standalone utility that can be used across different educational contexts.
+
+## Features
+
+- Generates structured feedback
+- Customisable feedback prompts
+- Reduces repetitive manual typing
+- Supports consistent feedback delivery
+
+## Installation
+
+Clone the repository:
+
