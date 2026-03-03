@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FeedbackCompilerHE</title>
+<title>Feedback Compiler</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
 <style>
 /* =============================================
-   FeedbackCompilerHE — Material Design 3
+   Feedback Compiler — Material Design 3
    Bold editorial aesthetic with MD3 foundations
    ============================================= */
 
@@ -533,6 +533,12 @@ button:active { transform: scale(0.97); }
   align-items: start;
 }
 
+.main-grid > div:last-child {
+  position: sticky;
+  top: var(--sticky-top);
+  align-self: start;
+}
+
 /* ────── CARDS / SURFACES ────── */
 .surface {
   background: var(--md-surface-container-low);
@@ -901,8 +907,8 @@ body.dark .sub-select option {
 }
 
 .sticky-panel {
-  position: sticky;
-  top: var(--sticky-top);
+  max-height: calc(100vh - var(--sticky-top) - 32px);
+  overflow-y: auto;
 }
 
 .output-label {
@@ -1032,8 +1038,12 @@ body.dark .sub-select option {
   .main-grid {
     grid-template-columns: 1fr;
   }
-  .sticky-panel {
+  .main-grid > div:last-child {
     position: static;
+  }
+  .sticky-panel {
+    max-height: none;
+    overflow-y: visible;
   }
   .search-field { width: 100%; min-width: 160px; }
 }
@@ -1079,8 +1089,8 @@ body.dark .sub-select option {
   <div class="top-bar-row1">
     <!-- Brand -->
     <div class="brand-block">
-      <h1 class="brand-title">Feedback<span>Compiler</span></h1>
-      <div class="brand-sub">Higher Education · v0.1</div>
+      <h1 class="brand-title">Feedback <span>Compiler</span></h1>
+      
     </div>
     <a class="help-link" href="#" onclick="openHelp(); return false;">How to use</a>
     <div class="spacer"></div>
@@ -1170,7 +1180,11 @@ body.dark .sub-select option {
   </div>
 </main>
 
-<footer class="footer">Open Source and free to distribute. Made (at home) by Fraser Simpson in 2026</footer>
+<footer class="footer">
+  Made by <strong>Fraser Simpson</strong> · Free to use, adapt, and share under the
+  <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">MIT License</a>
+  · If you use or adapt this tool, please credit Fraser Simpson.
+</footer>
 
 <!-- ── CONFIRM DIALOG ── -->
 <div id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
@@ -1452,7 +1466,13 @@ function render() {
           cb.onchange = () => {
             cb.checked ? state[topic].selected.add(text) : state[topic].selected.delete(text);
             updateOutput();
-            render();
+            // Update count badge in-place — no full re-render, preserves scroll position
+            const newCount = state[topic].selected.size;
+            const badge = wrap.querySelector('.topic-count');
+            if (badge) {
+              badge.textContent = newCount;
+              badge.dataset.count = newCount;
+            }
           };
 
           const textSpan = document.createElement("span");
@@ -1468,8 +1488,27 @@ function render() {
           toggle.onclick = e => {
             e.preventDefault();
             e.stopPropagation();
-            state[topic].commentNotes[text].open = !state[topic].commentNotes[text].open;
-            render();
+            const isOpen = !state[topic].commentNotes[text].open;
+            state[topic].commentNotes[text].open = isOpen;
+            // Toggle note textarea in-place — no full re-render
+            toggle.textContent = isOpen ? '−' : '+';
+            toggle.title = isOpen ? 'Hide note' : 'Add note';
+            toggle.classList.toggle('active', isOpen);
+            const existing = block.querySelector('.comment-note');
+            if (isOpen && !existing) {
+              const noteTa = document.createElement('textarea');
+              noteTa.className = 'comment-note';
+              noteTa.placeholder = 'Optional note for this comment…';
+              noteTa.value = state[topic].commentNotes[text].text || '';
+              noteTa.oninput = () => {
+                state[topic].commentNotes[text].text = noteTa.value;
+                updateOutput();
+              };
+              block.appendChild(noteTa);
+              noteTa.focus();
+            } else if (!isOpen && existing) {
+              existing.remove();
+            }
           };
 
           label.appendChild(cb);
@@ -1618,7 +1657,7 @@ function openHelp() {
   <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>How to use FeedbackCompilerHE v0.1</title>
+    <title>How to use Feedback Compiler</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
@@ -1680,7 +1719,7 @@ function openHelp() {
   </head>
   <body>
     <div class="card">
-      <h1>How to use FeedbackCompilerHE</h1>
+      <h1>How to use Feedback Compiler</h1>
       <ol>
         <li>Create an Excel spreadsheet using the <strong>feedback_example</strong> file in the folder with this document. Don't change the table headings, but you can change anything else to suit your module.</li>
         <li>Load the spreadsheet using the <strong>Load</strong> button or by dragging and dropping into the upload field.</li>
@@ -1700,7 +1739,7 @@ function openHelp() {
         </ul>
       </div>
     </div>
-    <footer>Made (at home) by Fraser Simpson in 2026</footer>
+    <footer>Made by Fraser Simpson · Free to use and adapt under the MIT License · Please credit Fraser Simpson if you share or adapt this tool.</footer>
   </body>
   </html>
   `);
