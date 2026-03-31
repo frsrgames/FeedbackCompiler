@@ -1199,7 +1199,7 @@ body.dark .sub-select option {
 </div>
 
 
-<!-- ── JAVASCRIPT (logic unchanged) ── -->
+<!-- ── JAVASCRIPT (logic unchanged except anchored subcategory selection) ── -->
 <script>
 /* ======================
    Data model for sheets
@@ -1384,6 +1384,34 @@ function highlight(text, query) {
   return span;
 }
 
+/* Preserve topic position when changing subcategory filter */
+function renderPreservingTopicPosition(topicName) {
+  const topicEl = Array.from(document.querySelectorAll(".topic")).find(el => {
+    const nameEl = el.querySelector(".topic-name");
+    return nameEl && nameEl.textContent === topicName;
+  });
+
+  let offsetFromViewportTop = null;
+
+  if (topicEl) {
+    offsetFromViewportTop = topicEl.getBoundingClientRect().top;
+  }
+
+  render();
+
+  if (offsetFromViewportTop !== null) {
+    const newTopicEl = Array.from(document.querySelectorAll(".topic")).find(el => {
+      const nameEl = el.querySelector(".topic-name");
+      return nameEl && nameEl.textContent === topicName;
+    });
+
+    if (newTopicEl) {
+      const newTop = newTopicEl.getBoundingClientRect().top;
+      window.scrollBy(0, newTop - offsetFromViewportTop);
+    }
+  }
+}
+
 /* Render current sheet */
 function render() {
   const builder = document.getElementById("builder");
@@ -1440,7 +1468,7 @@ function render() {
     select.value = state[topic].filter;
     select.onchange = () => {
       state[topic].filter = select.value;
-      render();
+      renderPreservingTopicPosition(topic);
     };
     inner.appendChild(select);
 
